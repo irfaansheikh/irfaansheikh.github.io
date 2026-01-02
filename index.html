@@ -9,18 +9,26 @@
         :root { --primary: #6366f1; --accent: #10b981; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; }
         .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
-        header { text-align: center; padding: 60px 0; border-bottom: 1px solid #334155; }
+        
+        /* Header & Badges */
+        header { text-align: center; padding: 40px 0; border-bottom: 1px solid #334155; }
         .name { font-size: 3rem; font-weight: 800; margin: 0; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .badge-container { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .badge { background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 6px 16px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; }
-        .section { margin: 60px 0; }
-        h2 { font-size: 1.8rem; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        h2::after { content: ''; flex: 1; height: 1px; background: #334155; }
+        .badge-grid { display: flex; justify-content: center; gap: 20px; margin-top: 25px; flex-wrap: wrap; }
+        .cert-badge { width: 100px; height: 100px; transition: transform 0.3s; filter: drop-shadow(0 0 8px rgba(99,102,241,0.3)); }
+        .cert-badge:hover { transform: scale(1.1); }
+        
+        .section { margin: 50px 0; }
+        h2 { font-size: 1.8rem; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; color: var(--primary); }
+        
+        /* Skills Grid */
+        .skills-tag-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+        .skill-tag { background: #334155; padding: 5px 15px; border-radius: 4px; font-size: 0.9rem; border: 1px solid #475569; }
+
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #334155; transition: transform 0.3s ease; }
-        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
-        .btn { background: var(--primary); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-top: 15px; }
-        .contact-footer { text-align: center; padding: 40px; background: var(--card); border-radius: 12px; }
+        .card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #334155; height: 100%; }
+        .btn { background: var(--primary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-top: 15px; }
+        
+        .contact-footer { text-align: center; padding: 40px; background: var(--card); border-radius: 12px; margin-top: 50px; }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -28,51 +36,68 @@
     <div class="container">
         <header>
             <h1 class="name">Irfan Sheikh</h1>
-            <p style="font-size: 1.25rem; color: #94a3b8;">Senior System Integration & Azure DevOps Engineer</p>
-            <div class="badge-container">
-                <span class="badge">AZ-400: DevOps Expert</span>
-                <span class="badge">AZ-204: Azure Developer</span>
-                <span class="badge">MBA & LLB Graduate</span>
-                <span class="badge">13+ Years Exp.</span>
+            <p style="font-size: 1.25rem; color: #94a3b8;">Senior Azure DevOps & System Integration Engineer</p>
+            
+            <div class="badge-grid">
+                <img class="cert-badge" src="https://images.credly.com/size/340x340/images/b18a257c-a33a-4775-8444-c6f6ba3d697f/DevOps_Engineer_Expert.png" alt="AZ-400">
+                <img class="cert-badge" src="https://images.credly.com/size/340x340/images/007469a4-1060-4965-b1a7-133529323326/Azure_Developer_Associate.png" alt="AZ-204">
+                <div style="text-align:left; font-size: 0.9rem; color: #94a3b8;">
+                    <div><i class="fas fa-graduation-cap"></i> MBA & LLB Graduate</div>
+                    <div><i class="fas fa-briefcase"></i> 13+ Years Experience</div>
+                </div>
             </div>
         </header>
+
+        <section class="section">
+            <h2><i class="fas fa-tools"></i> Technical Stack</h2>
+            <div class="skills-tag-container">
+                <span class="skill-tag">Azure DevOps</span>
+                <span class="skill-tag">AWS (EC2/S3)</span>
+                <span class="skill-tag">CI/CD Pipelines</span>
+                <span class="skill-tag">Docker</span>
+                <span class="skill-tag">Kubernetes</span>
+                <span class="skill-tag">OAuth 2.0 / JWT</span>
+                <span class="skill-tag">PRTG / Monitoring</span>
+                <span class="skill-tag">Terraform</span>
+                <span class="skill-tag">Jira / Confluence</span>
+            </div>
+        </section>
 
         <section class="section">
             <h2><i class="fas fa-rocket"></i> Core Expertise</h2>
             <div class="grid">
                 <div class="card">
                     <h3>DevOps Automation</h3>
-                    <p>Designing CI/CD pipelines using **GitHub Actions** and **Azure DevOps** to automate complex deployment workflows.</p>
+                    <p>Designing enterprise-grade CI/CD pipelines using **GitHub Actions** and **Azure DevOps** to ensure zero-touch deployments.</p>
                 </div>
                 <div class="card">
-                    <h3>Secure Integration</h3>
-                    <p>Expert in **OAuth 2.0, JWT**, and API security. 
-                        <br>Seamlessly connecting legacy systems with modern cloud platforms.</p>
+                    <h3>System Integration</h3>
+                    <p>Bridging legacy infrastructure with cloud-native security using **OAuth 2.0 and JWT** for secure API communication.</p>
                 </div>
             </div>
         </section>
 
         <section class="section">
-            <h2><i class="fas fa-code"></i> High-Impact Projects</h2>
+            <h2><i class="fas fa-code"></i> Projects & Authority</h2>
             <div class="grid">
                 <div class="card">
                     <h3>ToolBox Pro</h3>
-                    <p>A global digital hub featuring **200+ utility tools**, demonstrating expertise in scalable web architecture and user experience.</p>
+                    <p>A digital ecosystem of 200+ utility tools, showcasing high-scale integration and web architecture.</p>
                     <a href="https://tools.theslashroot.com" class="btn">View Live Site</a>
                 </div>
                 <div class="card">
                     <h3>The Slash Root</h3>
-                    <p>Primary technical authority platform integrating Islamic resources, tech tutorials, and developer tools.</p>
-                    <a href="https://theslashroot.com" class="btn">Visit Brand Hub</a>
+                    <p>A technical hub for IT tutorials and Islamic resources, demonstrating community-focused digital engineering.</p>
+                    <a href="https://theslashroot.com" class="btn">Visit Hub</a>
                 </div>
             </div>
         </section>
 
         <section class="contact-footer">
             <h2>Ready for Remote Impact</h2>
-            <p>Targeting Senior DevOps roles with global teams. Available for high-level system architecture and integration consulting.</p>
+            <p>Targeting Senior roles in Global Teams ($1,000 - $3,000/mo range).</p>
             <p><i class="fas fa-envelope"></i> s4sheikh@gmail.com | <i class="fab fa-linkedin"></i> /in/irfan-sheikh</p>
-            <a href="https://theslashroot.com/contact.html" class="btn" style="background: var(--accent);">Get In Touch</a>
+            <a href="mailto:s4sheikh@gmail.com" class="btn" style="background: var(--accent);">Hire Me</a>
         </section>
     </div>
 </body>
