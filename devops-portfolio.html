@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevOps Portfolio — 5-Project Roadmap</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { background: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; }
+    pre, code, .font-mono { font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace; }
+    .scrollbar-hide { scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    pre { white-space: pre-wrap; word-break: break-all; }
+    .step-body { display: none; }
+    .step-body.open { display: block; }
+    .chevron { transition: transform 0.25s ease; }
+    .chevron.open { transform: rotate(180deg); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; }
+    .sidebar-overlay.open { display: block; }
+    .mobile-sidebar { display: none; position: fixed; left: 0; top: 0; bottom: 0; width: 288px; background: #0f172a; border-right: 1px solid #1e293b; z-index: 50; overflow-y: auto; padding: 1rem; transform: translateX(-100%); transition: transform 0.3s ease; }
+    .mobile-sidebar.open { display: block; transform: translateX(0); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .copy-btn { cursor: pointer; }
+    .progress-bar { transition: width 0.5s ease; }
+    .tooltip { position: relative; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TOP HEADER
+════════════════════════════════════════════════════════════════ -->
+<header class="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <!-- Left: logo + hamburger -->
+    <div class="flex items-center gap-3">
+      <button id="hamburger" class="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-sm">⚙️</div>
+        <div>
+          <div class="font-bold text-white text-sm leading-none">DevOps Portfolio</div>
+          <div class="text-xs text-slate-400 leading-none mt-0.5">5-Project Roadmap</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: nav tabs (desktop) -->
+    <div class="hidden md:flex items-center gap-1 rounded-xl bg-slate-800/60 border border-slate-700/40 p-1">
+      <button onclick="setView('run')" id="nav-run" class="nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white">🖥️ How to Run</button>
+      <button onclick="setView('debug')" id="nav-debug" class="nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white">🛠️ Debug Toolkit</button>
+      <button onclick="setView('project-1')" id="nav-projects" class="nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white">📋 Projects</button>
+    </div>
+
+    <!-- Right: progress -->
+    <div class="hidden sm:flex items-center gap-3">
+      <span id="hdr-progress-text" class="text-xs text-slate-400">0/0 steps</span>
+      <div class="w-28 h-2 bg-slate-800 rounded-full overflow-hidden">
+        <div id="hdr-progress-bar" class="h-full bg-gradient-to-r from-violet-500 to-emerald-500 rounded-full progress-bar" style="width:0%"></div>
+      </div>
+      <span id="hdr-progress-pct" class="text-xs font-semibold text-white">0%</span>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile sidebar overlay -->
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+<div id="mobile-sidebar" class="mobile-sidebar">
+  <div class="flex items-center justify-between mb-4">
+    <span class="text-sm font-semibold text-white">Navigation</span>
+    <button onclick="closeMobileSidebar()" class="text-slate-400 hover:text-white">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="mobile-sidebar-content"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN LAYOUT
+════════════════════════════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex gap-6">
+
+  <!-- Desktop Sidebar -->
+  <aside class="hidden lg:block w-64 flex-shrink-0">
+    <div class="sticky top-24">
+      <div class="mb-3">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs text-slate-500">Overall progress</span>
+          <span id="sidebar-pct" class="text-xs font-bold text-white">0%</span>
+        </div>
+        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mb-4">
+          <div id="sidebar-progress-bar" class="h-full bg-gradient-to-r from-violet-500 to-emerald-500 rounded-full progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <nav id="desktop-sidebar-nav" class="space-y-1.5"></nav>
+      <div class="mt-5 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+        <p class="text-xs text-slate-400 font-semibold mb-2 uppercase tracking-wider">Guide</p>
+        <ul class="space-y-1.5 text-xs text-slate-400">
+          <li class="flex gap-2"><span>🖥️</span> Start with "How to Run" guide</li>
+          <li class="flex gap-2"><span>🛠️</span> Debug Toolkit for survival skills</li>
+          <li class="flex gap-2"><span>🔒</span> Projects unlock in order</li>
+          <li class="flex gap-2"><span>✅</span> Mark steps done to track progress</li>
+          <li class="flex gap-2"><span>📋</span> Click any step to expand</li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 min-w-0" id="main-content"></main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+
+const PROJECTS = [
+  {
+    id:1, title:"Production CI/CD Pipeline", subtitle:"Automate your entire delivery pipeline",
+    icon:"🚀", color:"text-violet-400", bgColor:"bg-violet-500/10", borderColor:"border-violet-500/30",
+    badgeColor:"bg-violet-500/20 text-violet-300", barColor:"bg-violet-500",
+    tools:["GitHub Actions","Docker","AWS EC2","Nginx"],
+    pipeline:["Push","Build & Test","Dockerize","Deploy"],
+    overview:"Build a fully automated CI/CD pipeline that triggers on every git push, builds & tests your app, packages it into a Docker image, and deploys it to AWS EC2 behind an Nginx reverse proxy.",
+    steps:[
+      {id:1,title:"Set Up Your GitHub Repository",description:"Create a new GitHub repo and push your application source code. This is the trigger point for the entire pipeline. Every push to the main branch will start the CI/CD flow.",
+        commands:['git init my-devops-app','cd my-devops-app','git remote add origin https://github.com/YOUR_USERNAME/my-devops-app.git','git add .','git commit -m "initial commit"','git push -u origin main'],
+        tips:["Use branch protection rules on `main` to enforce PR reviews before merging.","Add a .gitignore file to exclude node_modules, .env, and build artifacts."]},
+      {id:2,title:"Create Your Application (Node.js Example)",description:"Build a simple Node.js/Express app. This will be containerized and deployed. The app must expose an HTTP port for Nginx to proxy.",
+        commands:['npm init -y','npm install express','touch app.js'],
+        code:[{filename:"app.js",content:`const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Hello from CI/CD Pipeline!',
+    version: process.env.APP_VERSION || '1.0.0',
+    env: process.env.NODE_ENV || 'production'
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' });
+});
+
+app.listen(PORT, () => {
+  console.log('Server running on port ' + PORT);
+});`}],
+        tips:["Always add a /health endpoint — Nginx and load balancers use it to check app status."]},
+      {id:3,title:"Write the Dockerfile",description:"Create a production-grade multi-stage Dockerfile. Multi-stage builds keep the final image small and secure by not including dev dependencies.",
+        code:[{filename:"Dockerfile",content:`# ---- Stage 1: Build ----
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+# ---- Stage 2: Production ----
+FROM node:18-alpine AS production
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY . .
+
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+ENV NODE_ENV=production
+ENV PORT=3000
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \\
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "app.js"]`},{filename:".dockerignore",content:`node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+README.md
+*.test.js`}],
+        commands:['docker build -t my-devops-app:latest .','docker run -p 3000:3000 my-devops-app:latest','curl http://localhost:3000/health'],
+        tips:["Always use a specific base image tag (node:18-alpine) — never `latest` in production.","Running as a non-root user inside the container is a critical security practice."],
+        warnings:["Never copy .env files into Docker images. Use environment variables at runtime."]},
+      {id:4,title:"Push Docker Image to Docker Hub",description:"Set up Docker Hub as your container registry. Store your Docker Hub credentials as GitHub Secrets so the pipeline can push images securely.",
+        commands:['docker login','docker tag my-devops-app:latest YOUR_DOCKERHUB_USERNAME/my-devops-app:latest','docker push YOUR_DOCKERHUB_USERNAME/my-devops-app:latest'],
+        tips:["Go to GitHub → Settings → Secrets → Actions and add: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN.","Use Docker Hub Access Tokens instead of your password for better security."]},
+      {id:5,title:"Provision AWS EC2 Instance",description:"Launch an EC2 instance on AWS that will host your application. Configure the Security Group to allow traffic on ports 22 (SSH), 80 (HTTP), and 443 (HTTPS).",
+        commands:['# Via AWS CLI:','aws ec2 run-instances \\','  --image-id ami-0c02fb55956c7d316 \\','  --instance-type t2.micro \\','  --key-name my-key-pair \\','  --security-group-ids sg-XXXXXXXX \\','  --tag-specifications \'ResourceType=instance,Tags=[{Key=Name,Value=cicd-server}]\''],
+        tips:["Use a t2.micro instance — it's free tier eligible and perfect for portfolio projects.","Save your .pem key file securely. You'll need it for SSH and GitHub Actions.","Add EC2 public IP and private key as GitHub Secrets: EC2_HOST, EC2_USER (ubuntu), EC2_SSH_KEY."],
+        warnings:["Never expose port 3000 directly to the internet. Always proxy via Nginx on port 80/443."]},
+      {id:6,title:"Install Docker & Nginx on EC2",description:"SSH into your EC2 instance and install Docker and Nginx. These will be used to run containers and serve traffic.",
+        commands:['ssh -i my-key.pem ubuntu@YOUR_EC2_PUBLIC_IP','','# Update packages','sudo apt-get update && sudo apt-get upgrade -y','','# Install Docker','sudo apt-get install -y docker.io','sudo systemctl enable docker && sudo systemctl start docker','sudo usermod -aG docker ubuntu','','# Install Nginx','sudo apt-get install -y nginx','sudo systemctl enable nginx && sudo systemctl start nginx'],
+        tips:["Run `sudo usermod -aG docker ubuntu` so you can run Docker without sudo.","Log out and back in for the group change to take effect."]},
+      {id:7,title:"Configure Nginx as Reverse Proxy",description:"Set up Nginx to proxy HTTP traffic from port 80 to your Docker container running on port 3000.",
+        code:[{filename:"/etc/nginx/sites-available/myapp",content:`server {
+    listen 80;
+    server_name YOUR_EC2_PUBLIC_IP;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /health {
+        proxy_pass http://localhost:3000/health;
+        access_log off;
+    }
+}`}],
+        commands:['sudo nano /etc/nginx/sites-available/myapp','sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/','sudo nginx -t','sudo systemctl reload nginx'],
+        tips:["Run `sudo nginx -t` before reloading to catch config syntax errors.","Remove the default site: `sudo rm /etc/nginx/sites-enabled/default`"]},
+      {id:8,title:"Write GitHub Actions CI/CD Workflow",description:"The heart of the project. This YAML file defines the full pipeline: build → test → dockerize → deploy on every push to main.",
+        code:[{filename:".github/workflows/cicd.yml",content:`name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  IMAGE_NAME: \${{ secrets.DOCKERHUB_USERNAME }}/my-devops-app
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --if-present
+
+  dockerize:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: \${{ secrets.DOCKERHUB_USERNAME }}
+          password: \${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            \${{ env.IMAGE_NAME }}:latest
+            \${{ env.IMAGE_NAME }}:\${{ github.sha }}
+
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+    needs: dockerize
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: \${{ secrets.EC2_HOST }}
+          username: \${{ secrets.EC2_USER }}
+          key: \${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull \${{ env.IMAGE_NAME }}:latest
+            docker stop myapp || true
+            docker rm myapp || true
+            docker run -d \\
+              --name myapp \\
+              --restart unless-stopped \\
+              -p 3000:3000 \\
+              -e NODE_ENV=production \\
+              \${{ env.IMAGE_NAME }}:latest
+            sleep 5
+            curl -f http://localhost:3000/health || exit 1
+            docker image prune -f
+            echo "Deployment successful!"`}],
+        tips:["The pipeline has 3 jobs: build-and-test → dockerize → deploy. Each depends on the previous.","The `needs:` keyword creates job dependencies — deploy only runs if dockerize succeeds.","GitHub Secrets needed: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, EC2_HOST, EC2_USER, EC2_SSH_KEY."],
+        warnings:["The `--restart unless-stopped` flag ensures your container auto-restarts if EC2 reboots."]},
+      {id:9,title:"Add GitHub Secrets",description:"Store all sensitive credentials as GitHub Actions Secrets. Never hardcode passwords, IPs, or keys in your workflow files.",
+        tips:["Go to: GitHub Repo → Settings → Secrets and variables → Actions → New repository secret","DOCKERHUB_USERNAME → your Docker Hub username","DOCKERHUB_TOKEN → Docker Hub access token (not your password)","EC2_HOST → your EC2 public IP address","EC2_USER → ubuntu (for Ubuntu AMI)","EC2_SSH_KEY → paste the full content of your .pem file"],
+        warnings:["EC2_SSH_KEY: Copy the entire .pem file including -----BEGIN RSA PRIVATE KEY----- and -----END RSA PRIVATE KEY-----"]},
+      {id:10,title:"Test the Full Pipeline",description:"Make a small code change, push to GitHub, and watch the entire pipeline run automatically. Verify the app is accessible on your EC2 IP.",
+        commands:['echo "# Pipeline test" >> README.md','git add .','git commit -m "test: trigger CI/CD pipeline"','git push origin main','','# Watch it run on GitHub → Actions tab','','# After deploy, test your app:','curl http://YOUR_EC2_PUBLIC_IP/','curl http://YOUR_EC2_PUBLIC_IP/health'],
+        tips:["Watch the Actions tab in GitHub in real-time to see each job progress.","If any step fails, click on it in GitHub Actions to see detailed logs.","The full pipeline typically takes 2–4 minutes from push to deployed."]}
+    ]
+  },
+  {
+    id:2, title:"Terraform Infrastructure", subtitle:"Infrastructure as Code on AWS",
+    icon:"🏗️", color:"text-blue-400", bgColor:"bg-blue-500/10", borderColor:"border-blue-500/30",
+    badgeColor:"bg-blue-500/20 text-blue-300", barColor:"bg-blue-500",
+    tools:["Terraform","AWS VPC","AWS EC2","Load Balancer","Security Groups"],
+    overview:"Provision a complete, production-ready AWS infrastructure entirely from Terraform code: VPC with public/private subnets, EC2 instances, Application Load Balancer, and Security Groups.",
+    steps:[
+      {id:1,title:"Install Terraform & Configure AWS CLI",description:"Install Terraform and configure AWS credentials locally.",
+        commands:['# Install Terraform (Ubuntu/Debian)','wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg','sudo apt update && sudo apt install terraform','terraform --version','','# Configure AWS CLI','aws configure','# Enter: Access Key, Secret Key, Region (us-east-1), Output format (json)'],
+        tips:["On Mac: `brew install terraform`","On Windows: Download installer from developer.hashicorp.com/terraform/downloads"]},
+      {id:2,title:"Project Structure & Provider Setup",description:"Organize your Terraform files for clean, maintainable Infrastructure as Code.",
+        code:[{filename:"main.tf",content:`terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}`},{filename:"variables.tf",content:`variable "aws_region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "project_name" {
+  description = "Name prefix for all resources"
+  type        = string
+  default     = "devops-portfolio"
+}
+
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t2.micro"
+}`}],
+        tips:["Organize code into: main.tf, variables.tf, outputs.tf, vpc.tf, ec2.tf, alb.tf","Use terraform.tfvars for environment-specific values."]},
+      {id:3,title:"Provision VPC & Networking",description:"Create a production-grade VPC with public and private subnets across multiple availability zones.",
+        code:[{filename:"vpc.tf",content:`module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
+
+  name = "\${var.project_name}-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  private_subnets = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Project     = var.project_name
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
+}`}],
+        commands:['terraform init','terraform plan -out=tfplan','terraform apply tfplan'],
+        tips:["Multi-AZ subnets make your infrastructure highly available.","The NAT Gateway lets private subnet instances reach the internet without being exposed."]},
+      {id:4,title:"Security Groups",description:"Define fine-grained firewall rules as code.",
+        code:[{filename:"security.tf",content:`resource "aws_security_group" "alb" {
+  name_prefix = "\${var.project_name}-alb-"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "\${var.project_name}-alb-sg" }
+}
+
+resource "aws_security_group" "web" {
+  name_prefix = "\${var.project_name}-web-"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["YOUR_IP/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "\${var.project_name}-web-sg" }
+}`}],
+        warnings:["Replace YOUR_IP/32 with your actual IP address for SSH access."]},
+      {id:5,title:"EC2 Instances & Load Balancer",description:"Provision EC2 instances and an Application Load Balancer to distribute traffic.",
+        code:[{filename:"alb.tf",content:`resource "aws_lb" "main" {
+  name               = "\${var.project_name}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = module.vpc.public_subnets
+
+  tags = { Name = "\${var.project_name}-alb" }
+}
+
+resource "aws_lb_target_group" "web" {
+  name     = "\${var.project_name}-tg"
+  port     = 3000
+  protocol = "HTTP"
+  vpc_id   = module.vpc.vpc_id
+
+  health_check {
+    enabled  = true
+    path     = "/health"
+    interval = 30
+    timeout  = 5
+  }
+}
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
+  }
+}`}],
+        commands:['terraform apply','terraform output alb_dns_name','# Visit the ALB DNS name in your browser'],
+        tips:["The ALB automatically distributes traffic and performs health checks.","Use terraform output to get the ALB DNS name after apply."]}
+    ]
+  },
+  {
+    id:3, title:"Kubernetes Deployment", subtitle:"Orchestrate microservices at scale",
+    icon:"☸️", color:"text-cyan-400", bgColor:"bg-cyan-500/10", borderColor:"border-cyan-500/30",
+    badgeColor:"bg-cyan-500/20 text-cyan-300", barColor:"bg-cyan-500",
+    tools:["Docker","Kubernetes","Helm","kubectl"],
+    overview:"Deploy a microservice app using Kubernetes with proper health checks, auto-scaling, rolling updates, and Helm charts for reusable deployments.",
+    steps:[
+      {id:1,title:"Install kubectl & Set Up Cluster",description:"Install the Kubernetes CLI and connect to a cluster.",
+        commands:['# Install kubectl (Linux)','curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"','sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl','kubectl version --client','','# For local development: install minikube','curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64','sudo install minikube-linux-amd64 /usr/local/bin/minikube','minikube start','','# Verify cluster connection','kubectl cluster-info','kubectl get nodes'],
+        tips:["minikube is perfect for local Kubernetes development.","On Mac: brew install kubectl minikube","For AWS EKS: aws eks update-kubeconfig --name your-cluster --region us-east-1"]},
+      {id:2,title:"Write Kubernetes Manifests",description:"Define your application's Deployment, Service, ConfigMap, and HPA as YAML manifests.",
+        code:[{filename:"k8s/deployment.yaml",content:`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp
+          image: YOUR_DOCKERHUB/my-devops-app:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10`},{filename:"k8s/service.yaml",content:`apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  selector:
+    app: myapp
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000`},{filename:"k8s/hpa.yaml",content:`apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: myapp-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myapp
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70`}],
+        tips:["The HPA automatically scales pods from 2–10 replicas based on CPU utilization.","RollingUpdate strategy ensures zero-downtime deployments."]},
+      {id:3,title:"Deploy with kubectl",description:"Apply manifests to your Kubernetes cluster and verify everything is running.",
+        commands:['kubectl apply -f k8s/','kubectl get deployments','kubectl get pods','kubectl get services','','# Watch pods in real-time','kubectl get pods -w','','# View logs','kubectl logs -f deployment/myapp','','# Port-forward to test locally','kubectl port-forward service/myapp-service 8080:80','curl http://localhost:8080/health'],
+        tips:["Use `kubectl get pods -w` to watch pod status change in real time."]},
+      {id:4,title:"Package with Helm",description:"Create a Helm chart to make deployments reusable and environment-aware.",
+        commands:['helm create myapp-chart','','# Deploy with Helm','helm install myapp ./myapp-chart --values values-prod.yaml','','# Upgrade deployment','helm upgrade myapp ./myapp-chart --values values-prod.yaml','','# Rollback to previous version','helm rollback myapp 1','','# List all Helm releases','helm list'],
+        tips:["Use separate values files: values-dev.yaml, values-staging.yaml, values-prod.yaml.","Use `helm rollback` to instantly revert a bad deployment."]}
+    ]
+  },
+  {
+    id:4, title:"Monitoring Stack", subtitle:"Full observability for your infrastructure",
+    icon:"📊", color:"text-orange-400", bgColor:"bg-orange-500/10", borderColor:"border-orange-500/30",
+    badgeColor:"bg-orange-500/20 text-orange-300", barColor:"bg-orange-500",
+    tools:["Prometheus","Grafana","Node Exporter","Alertmanager"],
+    overview:"Set up a complete monitoring stack: Prometheus for metrics collection, Node Exporter for server metrics, Alertmanager for notifications, and Grafana for dashboards.",
+    steps:[
+      {id:1,title:"Deploy Node Exporter on All Servers",description:"Node Exporter collects OS-level metrics (CPU, RAM, disk, network) from each server.",
+        commands:['docker run -d \\','  --name node-exporter \\','  --restart unless-stopped \\','  -p 9100:9100 \\','  -v \'/:/host:ro,rslave\' \\','  prom/node-exporter \\','  --path.rootfs=/host','','# Verify metrics are exposed','curl http://localhost:9100/metrics | head -30'],
+        tips:["Node Exporter exposes 1000+ metrics: CPU, memory, disk I/O, network, and more."]},
+      {id:2,title:"Configure Prometheus",description:"Prometheus scrapes metrics from Node Exporter and your application endpoints.",
+        code:[{filename:"prometheus.yml",content:`global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+rule_files:
+  - "alert_rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+          - 'YOUR_SERVER_IP:9100'
+
+  - job_name: 'myapp'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['YOUR_APP_IP:3000']`},{filename:"alert_rules.yml",content:`groups:
+  - name: server_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU on {{ $labels.instance }}"
+
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+
+      - alert: AppDown
+        expr: up{job="myapp"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Application is down on {{ $labels.instance }}"`}],
+        commands:['docker run -d \\','  --name prometheus \\','  --restart unless-stopped \\','  -p 9090:9090 \\','  -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \\','  prom/prometheus','','# Access Prometheus UI at http://localhost:9090']},
+      {id:3,title:"Deploy Grafana",description:"Set up Grafana, connect it to Prometheus, and import pre-built dashboards.",
+        commands:['docker run -d \\','  --name grafana \\','  --restart unless-stopped \\','  -p 3001:3000 \\','  -e GF_SECURITY_ADMIN_PASSWORD=admin123 \\','  grafana/grafana','','# Access Grafana at http://localhost:3001','# Login: admin / admin123'],
+        tips:["Configuration → Data Sources → Add Prometheus → URL: http://prometheus:9090","Import dashboard ID 1860 for the Node Exporter Full dashboard (pre-built!).","Import dashboard ID 13978 for Docker container monitoring."]},
+      {id:4,title:"Run Full Stack with Docker Compose",description:"Launch the entire monitoring stack with a single command.",
+        code:[{filename:"docker-compose.monitoring.yml",content:`version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    volumes:
+      - '/:/host:ro,rslave'
+    command:
+      - '--path.rootfs=/host'
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:`}],
+        commands:['docker-compose -f docker-compose.monitoring.yml up -d','docker-compose -f docker-compose.monitoring.yml ps']}
+    ]
+  },
+  {
+    id:5, title:"Full DevOps Platform", subtitle:"All 4 projects combined end-to-end",
+    icon:"🌐", color:"text-emerald-400", bgColor:"bg-emerald-500/10", borderColor:"border-emerald-500/30",
+    badgeColor:"bg-emerald-500/20 text-emerald-300", barColor:"bg-emerald-500",
+    tools:["Terraform","EKS","GitHub Actions","Helm","Prometheus","Grafana"],
+    overview:"Combine all projects into a complete DevOps platform: Terraform provisions EKS → Kubernetes orchestrates services → GitHub Actions automates delivery → Prometheus+Grafana monitors everything.",
+    steps:[
+      {id:1,title:"Architecture Overview",description:"Understand how all 4 projects integrate into one platform.",
+        tips:["Layer 1 — Infrastructure (Project 2): Terraform provisions EKS cluster, VPC, Load Balancer, Security Groups on AWS","Layer 2 — Orchestration (Project 3): Kubernetes runs microservices with auto-scaling, self-healing, and rolling updates","Layer 3 — Delivery (Project 1): GitHub Actions builds, tests, dockerizes, and deploys via Helm on every git push","Layer 4 — Monitoring (Project 4): Prometheus+Grafana monitors all layers with alerts for CPU, memory, and app health","Layer 5 — Security: AWS IAM roles, Kubernetes RBAC, secrets in AWS Secrets Manager"]},
+      {id:2,title:"Provision AWS EKS with Terraform",description:"Use Terraform to provision a managed Kubernetes cluster (EKS) on AWS.",
+        code:[{filename:"eks.tf",content:`module "eks" {
+  source          = "terraform-aws-modules/eks/aws"
+  version         = "~> 19.0"
+
+  cluster_name    = "\${var.project_name}-eks"
+  cluster_version = "1.28"
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  eks_managed_node_groups = {
+    main = {
+      min_size       = 2
+      max_size       = 5
+      desired_size   = 3
+      instance_types = ["t3.medium"]
+    }
+  }
+}
+
+output "kubeconfig_command" {
+  value = "aws eks update-kubeconfig --name \${module.eks.cluster_name} --region \${var.aws_region}"
+}`}],
+        commands:['terraform apply','aws eks update-kubeconfig --name devops-portfolio-eks --region us-east-1','kubectl get nodes']},
+      {id:3,title:"CI/CD Pipeline → Kubernetes Deployment",description:"Update GitHub Actions to deploy directly to Kubernetes using Helm.",
+        code:[{filename:".github/workflows/full-pipeline.yml",content:`  deploy-to-k8s:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: dockerize
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: \${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name devops-portfolio-eks --region us-east-1
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install myapp ./helm/myapp \\
+            --set image.tag=\${{ github.sha }} \\
+            --namespace production \\
+            --create-namespace \\
+            --wait \\
+            --timeout=5m
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/myapp -n production
+          kubectl get pods -n production`}]},
+      {id:4,title:"Install Monitoring Stack on Kubernetes",description:"Deploy the full Prometheus+Grafana stack into the EKS cluster using Helm.",
+        commands:['helm repo add prometheus-community https://prometheus-community.github.io/helm-charts','helm repo update','','# Install kube-prometheus-stack (everything in one chart)','helm install monitoring prometheus-community/kube-prometheus-stack \\','  --namespace monitoring \\','  --create-namespace \\','  --set grafana.adminPassword=admin123','','# Access Grafana','kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring'],
+        tips:["kube-prometheus-stack installs Prometheus, Grafana, Alertmanager, and Node Exporter in one command.","Pre-built Kubernetes cluster dashboards are included automatically."]},
+      {id:5,title:"End-to-End Validation",description:"Verify every component of the full DevOps platform is working correctly.",
+        commands:['# Infrastructure','terraform show | grep -E \'cluster|alb|vpc\'','','# Kubernetes nodes','kubectl get nodes','kubectl get pods --all-namespaces','','# Application','kubectl get deployments -n production','kubectl get services -n production','','# Monitoring','kubectl get pods -n monitoring','','# Trigger full pipeline','git commit --allow-empty -m "chore: test full platform"','git push origin main','','# Watch: GitHub Actions → K8s rollout → Grafana metrics updating'],
+        tips:["You now have a production-grade DevOps platform with IaC, Container Orchestration, CI/CD, and Monitoring.","This mirrors real enterprise DevOps setups and makes an outstanding portfolio piece.","Document each project with architecture diagrams in your GitHub README for maximum impact."]}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════
+// DEBUG TOOLKIT DATA
+// ═══════════════════════════════════════════════════════════════
+
+const PROJECT_DEBUG = [
+  {
+    id:"p1", projectNum:1, projectTitle:"CI/CD Pipeline", focus:"Connectivity, container state, and logs",
+    icon:"⚙️", color:"text-violet-400", bgColor:"bg-violet-500/10", borderColor:"border-violet-500/30", badgeColor:"bg-violet-500/20 text-violet-300",
+    commands:[
+      {cmd:"docker ps -a",what:"List ALL containers — running, stopped, crashed, exited",why:"First command after any CI/CD deploy failure. Tells you if your container ever started, what state it is in, how many times it has restarted, and when it exited.",
+        flags:[{flag:"-a",meaning:"Show ALL containers (not just running ones)"},{flag:"-q",meaning:"Quiet mode — print only container IDs (for scripting)"},{flag:"--filter status=exited",meaning:"Show only exited/crashed containers"}],
+        tips:["STATUS column: 'Up 2 minutes' = healthy. 'Exited (1)' = crashed with error. 'Exited (137)' = OOM killed.","Exit code 0 = clean shutdown. Code 1 = app error. Code 137 = killed by kernel (OOM). Code 143 = SIGTERM.","Always run docker ps -a before docker logs — the container might be stopped."]},
+      {cmd:"docker logs -f myapp",what:"Stream live container stdout + stderr logs in real-time",why:"See exactly what your app printed when it crashed, what errors occurred during startup, and watch live traffic logs.",
+        flags:[{flag:"-f",meaning:"Follow — stream new log lines as they appear"},{flag:"--tail 100",meaning:"Show last 100 lines then follow"},{flag:"--since 30m",meaning:"Only show logs from last 30 minutes"},{flag:"--timestamps",meaning:"Prefix each line with exact timestamp"}],
+        tips:["Always use 2>&1 when grepping — Node.js writes errors to stderr, not stdout.","docker logs works on stopped containers too — don't docker rm before reading logs!"]},
+      {cmd:"docker exec -it myapp /bin/bash",what:"Open an interactive shell INSIDE a running container",why:"When logs aren't enough — get inside and manually test commands, check env vars, verify files exist.",
+        flags:[{flag:"-i",meaning:"Interactive — keep stdin open"},{flag:"-t",meaning:"Allocate a pseudo-TTY (terminal)"},{flag:"/bin/bash",meaning:"Use bash shell (try /bin/sh if bash not available)"}],
+        tips:["If bash not found, try /bin/sh — Alpine-based images only have sh.","Once inside: 'env' shows all environment variables. 'ls -la' shows files."],
+        danger:"Never run this in production without knowing what you're doing."},
+      {cmd:"systemctl status docker",what:"Check if the Docker daemon (service) is running on the host",why:"If Docker itself is down, none of your containers will work.",
+        flags:[{flag:"start docker",meaning:"Start Docker if it is stopped"},{flag:"restart docker",meaning:"Restart the Docker daemon"},{flag:"enable docker",meaning:"Make Docker start on boot"}],
+        tips:["'Active: active (running)' = Docker is healthy. 'Active: failed' = Docker crashed.","Check Docker daemon logs: journalctl -u docker -n 50 --no-pager"]},
+      {cmd:"curl -v http://localhost:3000",what:"Test your app directly, bypassing Nginx — verbose output shows every detail",why:"Isolates whether the problem is in your app or in Nginx.",
+        flags:[{flag:"-v",meaning:"Verbose — show request headers, response headers, TLS info"},{flag:"-I",meaning:"HEAD request only — headers, no body (faster)"},{flag:"-s -o /dev/null -w '%{http_code}'",meaning:"Silent — print only status code"}],
+        tips:["Test each layer: curl localhost:3000 (app) → curl localhost:80 (nginx) → curl public-ip (internet)","If curl localhost:3000 gives 'Connection refused' = app is not running on that port."]},
+      {cmd:"netstat -tulpn",what:"Show all listening ports with the process name and PID that owns them",why:"Verify your app and Nginx are actually bound to the expected ports.",
+        flags:[{flag:"-t",meaning:"TCP connections"},{flag:"-u",meaning:"UDP connections"},{flag:"-l",meaning:"Only listening sockets"},{flag:"-p",meaning:"Show process name and PID"},{flag:"-n",meaning:"Numeric output — don't resolve hostnames"}],
+        tips:["On newer Ubuntu, use 'ss -tulpn' instead — it's faster and pre-installed.","If netstat not found: sudo apt install net-tools"]}
+    ]
+  },
+  {
+    id:"p2", projectNum:2, projectTitle:"Terraform Infrastructure", focus:"State drift and API errors",
+    icon:"🏗️", color:"text-blue-400", bgColor:"bg-blue-500/10", borderColor:"border-blue-500/30", badgeColor:"bg-blue-500/20 text-blue-300",
+    commands:[
+      {cmd:"terraform plan",what:"Preview exactly what Terraform WILL do before applying",why:"ALWAYS run plan before apply. Catches mistakes before they destroy live infrastructure.",
+        flags:[{flag:"-out=tfplan",meaning:"Save plan to file"},{flag:"-target=aws_instance.web",meaning:"Plan only one specific resource"},{flag:"-var='instance_type=t2.micro'",meaning:"Override a variable at plan time"}],
+        tips:["Red '-' lines = resources being DESTROYED. Always review before applying!","Yellow '~' lines = resources being MODIFIED in-place.","Red/white '-/+' = resource being REPLACED (destroyed then recreated). Can cause downtime!"],
+        danger:"Never skip terraform plan on production infrastructure. One typo can destroy your database."},
+      {cmd:"terraform state list",what:"List all resources currently tracked in Terraform's state file",why:"Shows you what Terraform thinks exists. Detect state drift.",
+        flags:[{flag:"state show aws_instance.web",meaning:"Show all attributes of one specific resource"},{flag:"state rm aws_instance.web",meaning:"Remove resource from state (without destroying it)"},{flag:"state pull",meaning:"Download and print current state JSON"}],
+        tips:["If you manually created a resource in AWS Console, import it: terraform import aws_instance.web i-1234567890","State drift = AWS reality differs from state file. Run terraform plan to see drift."]},
+      {cmd:"terraform show",what:"Display the full current state in human-readable format",why:"See exactly what Terraform knows about every resource — IDs, IPs, ARNs, attributes.",
+        flags:[{flag:"show tfplan",meaning:"Show a saved plan file"},{flag:"show -json",meaning:"Output as JSON for scripting"}],
+        tips:["terraform output -json | jq . — pretty-print all outputs after apply.","Use terraform show to find the public IP of a newly created EC2 instance."]},
+      {cmd:"terraform validate",what:"Check Terraform configuration files for syntax errors",why:"Fast pre-flight check before plan or apply. Catches typos, missing required arguments.",
+        flags:[{flag:"fmt",meaning:"Auto-format all .tf files"},{flag:"fmt -check",meaning:"Check formatting without changing files (good for CI)"}],
+        tips:["Run terraform validate AND terraform fmt before every commit.","Add 'terraform validate && terraform fmt -check' to your GitHub Actions CI workflow."]},
+      {cmd:"TF_LOG=DEBUG terraform apply",what:"Run terraform apply with maximum debug logging",why:"When terraform apply fails with a cryptic error, DEBUG mode shows the raw AWS API request and response.",
+        flags:[{flag:"TF_LOG=DEBUG",meaning:"Maximum verbosity — every API call logged"},{flag:"TF_LOG=INFO",meaning:"Less verbose — good starting point"},{flag:"TF_LOG_PATH=./terraform.log",meaning:"Write logs to file instead of terminal"}],
+        tips:["TF_LOG=DEBUG 2>&1 | grep -i 'error|denied|invalid' — filter just the errors.","AccessDenied error = your IAM user/role lacks the required AWS permission."],
+        danger:"DEBUG logs may contain AWS credentials and sensitive data. Never commit terraform.log to git."}
+    ]
+  },
+  {
+    id:"p3", projectNum:3, projectTitle:"Kubernetes Deployment", focus:"Pod health and networking",
+    icon:"☸️", color:"text-cyan-400", bgColor:"bg-cyan-500/10", borderColor:"border-cyan-500/30", badgeColor:"bg-cyan-500/20 text-cyan-300",
+    commands:[
+      {cmd:"kubectl get pods -A",what:"List ALL pods across ALL namespaces",why:"First command when anything in Kubernetes breaks. Shows pod state, restarts count, and which namespace.",
+        flags:[{flag:"-A / --all-namespaces",meaning:"Show pods in every namespace"},{flag:"-n production",meaning:"Only show pods in 'production' namespace"},{flag:"-w",meaning:"Watch — auto-refresh as pod status changes"},{flag:"-o wide",meaning:"Show extra info: node name, IP address"}],
+        tips:["CrashLoopBackOff = container crashes on startup repeatedly.","Pending = scheduler can't find a node (resource constraints or taints).","ImagePullBackOff = image doesn't exist or registry credentials wrong."]},
+      {cmd:"kubectl describe pod <name>",what:"Full details about a specific pod — events, conditions, resource requests",why:"The Events section at the bottom shows WHY a pod failed. Most problems are diagnosed here.",
+        flags:[{flag:"describe deployment myapp",meaning:"Describe a deployment instead of a pod"},{flag:"describe node nodename",meaning:"Show node capacity and allocated resources"},{flag:"describe service myapp-service",meaning:"Show service endpoints and selectors"}],
+        tips:["Always scroll to the Events section — it shows error messages in chronological order.","'Back-off restarting failed container' = CrashLoopBackOff — read the logs next."]},
+      {cmd:"kubectl logs <pod_name> -p",what:"View logs from the PREVIOUS (crashed) container instance",why:"The -p flag is the most important flag in Kubernetes debugging. When a pod is in CrashLoopBackOff, you need the previous crash's logs.",
+        flags:[{flag:"-p / --previous",meaning:"Show previous crashed container logs — THE most important flag"},{flag:"-f",meaning:"Follow live log stream"},{flag:"--tail=100",meaning:"Show last 100 lines"},{flag:"-c container-name",meaning:"Specific container in a multi-container pod"}],
+        tips:["Without -p, you see the CURRENT container logs (which may be empty if it just started).","kubectl logs deployment/myapp — logs from any pod in the deployment."]},
+      {cmd:"kubectl get events --sort-by='.lastTimestamp'",what:"Show all cluster events sorted by most recent",why:"Events tell you what Kubernetes itself was trying to do and why it failed — scheduling failures, image pulls, health check failures.",
+        flags:[{flag:"--sort-by='.lastTimestamp'",meaning:"Sort by time — most recent at bottom"},{flag:"-n production",meaning:"Events in specific namespace"},{flag:"--field-selector reason=Failed",meaning:"Only Failed events"}],
+        tips:["Events expire after 1 hour by default. Check quickly after an incident.","Look for: FailedScheduling, BackOff, Unhealthy, Failed, OOMKilling."]},
+      {cmd:"kubectl top nodes/pods",what:"Show real-time CPU and memory usage for nodes and pods",why:"Find which node or pod is consuming excessive resources, causing pressure on the cluster.",
+        flags:[{flag:"top pods --all-namespaces",meaning:"CPU/memory for all pods everywhere"},{flag:"top pods --sort-by=cpu",meaning:"Sort by CPU usage — find the hungry pods"},{flag:"top pods --sort-by=memory",meaning:"Sort by memory usage — find memory leaks"}],
+        tips:["Requires metrics-server to be installed: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml","If a pod is near its memory limit, it will be OOMKilled (exit code 137)."]}
+    ]
+  },
+  {
+    id:"p4", projectNum:4, projectTitle:"Monitoring Stack", focus:"Data scraping and service health",
+    icon:"📊", color:"text-orange-400", bgColor:"bg-orange-500/10", borderColor:"border-orange-500/30", badgeColor:"bg-orange-500/20 text-orange-300",
+    commands:[
+      {cmd:"promtool check config /etc/prometheus/prometheus.yml",what:"Validate the Prometheus configuration file for syntax errors",why:"Before reloading Prometheus, always validate the config. Invalid YAML will crash Prometheus.",
+        flags:[{flag:"check config FILE",meaning:"Validate config file syntax and rule files"},{flag:"check rules FILE",meaning:"Validate alert rule files separately"},{flag:"query instant http://localhost:9090 'up'",meaning:"Run a test query against live Prometheus"}],
+        tips:["Always run this before reloading: promtool check config prometheus.yml && curl -X POST http://localhost:9090/-/reload","Success output: 'SUCCESS: 1 rule files found, 3 rules found'"]},
+      {cmd:"cat /etc/prometheus/prometheus.yml",what:"View the current Prometheus scrape config to verify targets are defined",why:"Verify that your scrape targets are actually configured. If a job isn't in this file, Prometheus won't collect metrics from it.",
+        flags:[{flag:"grep 'job_name'",meaning:"List all configured scrape jobs"},{flag:"grep 'targets'",meaning:"List all configured scrape targets"}],
+        tips:["After editing, always: promtool check config + reload Prometheus","Use http://localhost:9090/targets to see which targets are UP/DOWN in the UI."]},
+      {cmd:"journalctl -u prometheus -f",what:"Stream live Prometheus service logs",why:"When Prometheus won't start or stops collecting, the service logs show the exact error.",
+        flags:[{flag:"-u prometheus",meaning:"Filter logs for the prometheus systemd service"},{flag:"-f",meaning:"Follow — stream new lines as they appear"},{flag:"-n 50",meaning:"Show last 50 lines then follow"},{flag:"--since '1h ago'",meaning:"Only logs from the last hour"}],
+        tips:["'level=error' lines in Prometheus logs usually indicate scrape failures or config problems.","'msg=Completed loading of configuration file' = config reloaded successfully."]},
+      {cmd:"curl localhost:9090/-/healthy",what:"Check if the Prometheus HTTP server is responding and healthy",why:"Quick health check without opening the browser. Use in scripts and CI/CD pipelines.",
+        flags:[{flag:"/-/healthy",meaning:"Returns 200 OK if Prometheus is healthy"},{flag:"/-/ready",meaning:"Returns 200 OK if Prometheus is ready to serve"},{flag:"/-/reload",meaning:"Reload config (POST request): curl -X POST localhost:9090/-/reload"}],
+        tips:["Chain with promtool: promtool check config prometheus.yml && curl -X POST localhost:9090/-/reload","Prometheus API: curl localhost:9090/api/v1/targets | jq .data.activeTargets"]},
+      {cmd:"df -h",what:"Show disk usage in human-readable format — critical for Prometheus storage monitoring",why:"Prometheus stores time-series data on disk. If disk is full, Prometheus stops accepting new data and may crash.",
+        flags:[{flag:"-h",meaning:"Human-readable sizes (GB, MB)"},{flag:"-T",meaning:"Show filesystem type"},{flag:"--total",meaning:"Show total line at bottom"}],
+        tips:["Prometheus default retention: 15 days. Configure with --storage.tsdb.retention.time=15d","Check Prometheus data dir size: du -sh /var/lib/prometheus/","Clean up: set shorter retention or increase disk size."]}
+    ]
+  },
+  {
+    id:"p5", projectNum:5, projectTitle:"Full DevOps Platform", focus:"Deep system performance",
+    icon:"🌐", color:"text-emerald-400", bgColor:"bg-emerald-500/10", borderColor:"border-emerald-500/30", badgeColor:"bg-emerald-500/20 text-emerald-300",
+    commands:[
+      {cmd:"htop",what:"Interactive real-time process monitor with color-coded CPU, memory, load average",why:"When something is slow or consuming resources on any server in your platform, htop shows you what in seconds.",
+        flags:[{flag:"F6 or > to sort",meaning:"Sort by CPU%, MEM%, PID, TIME"},{flag:"F9",meaning:"Kill selected process"},{flag:"F5",meaning:"Tree view — see parent/child process relationships"},{flag:"-u ubuntu",meaning:"Show only processes owned by 'ubuntu' user"}],
+        tips:["Load average: 3 numbers = last 1, 5, 15 minutes. If > number of CPU cores = overloaded.","Green bars = normal. Red bars in CPU = kernel time (often I/O wait). Yellow = low priority.","Press 't' to toggle tree view — great for seeing Docker processes."]},
+      {cmd:"lsof -i :80",what:"List all processes with open connections on port 80",why:"Find out exactly which process is using a port. Essential when you get 'port already in use' errors.",
+        flags:[{flag:"-i :PORT",meaning:"Show processes using a specific port"},{flag:"-i TCP:80",meaning:"Only TCP connections on port 80"},{flag:"-n",meaning:"No DNS resolution — faster output"},{flag:"-P",meaning:"No port name resolution — shows numbers not names"}],
+        tips:["lsof -i :80 | grep LISTEN — only show who is LISTENING (server), not connections.","Kill the blocking process: kill -9 $(lsof -t -i:80)","Alternative: ss -tulpn | grep :80 (faster, no install needed)"]},
+      {cmd:"tail -f /var/log/syslog",what:"Stream the system log in real-time — catches kernel, systemd, and service messages",why:"When something crashes on the server and you're not sure what, syslog captures it all.",
+        flags:[{flag:"-f",meaning:"Follow — stream new lines as they appear"},{flag:"-n 100",meaning:"Show last 100 lines then follow"},{flag:"| grep -i error",meaning:"Filter for error messages only"},{flag:"-f /var/log/auth.log",meaning:"SSH and authentication events"}],
+        tips:["On newer Ubuntu/Debian, syslog may be at /var/log/syslog or use journalctl instead.","journalctl -f is the modern equivalent — works on all systemd-based systems.","Useful for catching: OOM killer events, hardware errors, kernel panics, failed services."]},
+      {cmd:"ip addr / ifconfig",what:"Display all network interfaces, their IP addresses, and status",why:"Verify your server's network configuration. Check which interface has the public IP.",
+        flags:[{flag:"ip addr show eth0",meaning:"Show only the eth0 interface"},{flag:"ip route",meaning:"Show routing table — how traffic is routed"},{flag:"ip link show",meaning:"Show all interfaces and their UP/DOWN state"},{flag:"ifconfig -a",meaning:"Show all interfaces including inactive ones (older systems)"}],
+        tips:["On EC2: eth0 usually has the private IP. Public IP is handled by AWS NAT.","If an interface is DOWN: ip link set eth0 up (or check AWS Console for network issues).","ip addr show | grep 'inet ' — just show IPv4 addresses."]},
+      {cmd:"nslookup <service_name>",what:"Query DNS to resolve a hostname to IP address — test DNS resolution",why:"In Kubernetes and microservice environments, services communicate via DNS names. If DNS fails, services can't talk to each other.",
+        flags:[{flag:"nslookup myapp-service",meaning:"Resolve service name (inside Kubernetes)"},{flag:"nslookup myapp-service.default.svc.cluster.local",meaning:"Full Kubernetes DNS name"},{flag:"nslookup github.com 8.8.8.8",meaning:"Use Google DNS explicitly"}],
+        tips:["In Kubernetes: service DNS format is: service.namespace.svc.cluster.local","If nslookup fails but IP works = DNS issue. Check CoreDNS pods: kubectl get pods -n kube-system.","dig is more powerful than nslookup: dig +short github.com"]}
+    ]
+  }
+];
+
+const PLATFORM_DEBUG = [
+  {
+    id:"git", icon:"🐙", title:"Git & GitHub Troubleshooting", subtitle:"Authentication and 'Why didn\'t my code go there?'",
+    color:"text-slate-300", bgColor:"bg-slate-700/20", borderColor:"border-slate-600/30", badgeColor:"bg-slate-700/30 text-slate-300",
+    commands:[
+      {cmd:"git remote -v",what:"Show all configured remote URLs (fetch and push)",why:"Verify your local repo is pointing to the right GitHub remote. Pushing to the wrong remote is a common mistake.",
+        tips:["If remote URL is wrong: git remote set-url origin https://github.com/USER/REPO.git","For SSH: git remote set-url origin git@github.com:USER/REPO.git","Add a new remote: git remote add upstream https://github.com/ORIGINAL/REPO.git"]},
+      {cmd:"ssh -T git@github.com",what:"Test GitHub SSH authentication without cloning anything",why:"Verify your SSH key is correctly added to GitHub before debugging push failures.",
+        tips:["Expected response: 'Hi USERNAME! You've successfully authenticated'","If failed: ssh-add ~/.ssh/id_ed25519 (add key to agent)","Generate new key: ssh-keygen -t ed25519 -C 'your@email.com'","Add public key to GitHub: Settings → SSH and GPG keys → New SSH key"]},
+      {cmd:"git log --oneline -5",what:"Show last 5 commits in compact one-line format",why:"Verify your commits are actually in the repo before pushing. Confirm commit order.",
+        tips:["git log --oneline --graph --all — see all branches and their commit history visually.","git log --stat — shows which files changed in each commit.","git diff HEAD~1 — see what changed in the last commit."]},
+      {cmd:"git reflog",what:"Show complete history of all HEAD movements — even deleted commits, hard resets",why:"The safety net for git disasters. Recover commits that were accidentally deleted with reset --hard.",
+        tips:["Recover a deleted commit: git checkout <hash_from_reflog>","Reflog entries expire after 90 days by default.","git reflog show branch-name — see reflog for a specific branch."]},
+      {cmd:"git clean -fd",what:"Remove all untracked files and directories from the working directory",why:"When build artifacts, logs, or generated files are cluttering the repo and causing unexpected behavior.",
+        tips:["ALWAYS run git clean -n first (dry run — shows what WOULD be deleted without deleting).","git clean -fd removes untracked files AND directories. -x also removes gitignored files.","Combine with git reset --hard HEAD for a complete clean slate."],
+        danger:"git clean -fd is PERMANENT. Files are gone forever — not in trash. Always use -n (dry run) first."}
+    ]
+  },
+  {
+    id:"actions", icon:"⚡", title:"GitHub Actions Secrets & Runners", subtitle:"Environment variables and workflow failures",
+    color:"text-yellow-400", bgColor:"bg-yellow-500/10", borderColor:"border-yellow-500/30", badgeColor:"bg-yellow-500/20 text-yellow-300",
+    commands:[
+      {cmd:"ACTIONS_STEP_DEBUG=true",what:"Enable verbose step-level debug logging in GitHub Actions",why:"When a workflow step fails with a cryptic error, step debug shows every command executed and all environment details.",
+        tips:["Go to: Repo → Settings → Secrets and variables → Actions → Add secret","Name: ACTIONS_STEP_DEBUG, Value: true","Also add ACTIONS_RUNNER_DEBUG=true for runner diagnostic logs.","Disable after debugging — debug logs are verbose and may expose sensitive env values."]},
+      {cmd:"env | sort",what:"List all environment variables in the runner, sorted alphabetically",why:"Verify that secrets are being passed correctly and that expected env vars exist in the workflow context.",
+        tips:["Add this step to your workflow YAML to debug:","  - name: Debug env\\n    run: env | sort","GitHub automatically masks secret values with *** in logs.","Never print secrets explicitly — use the masking, not echo \$MY_SECRET."]},
+      {cmd:"whoami && pwd",what:"Show current user identity and working directory inside the runner",why:"Diagnose permission errors. GitHub Actions runs as the 'runner' user. Verify working directory is correct.",
+        tips:["GitHub-hosted runners run as: runner (Linux), SYSTEM (Windows)","Default working directory: /home/runner/work/REPO_NAME/REPO_NAME","If a file isn't found: confirm with pwd and ls -la before the failing step."]}
+    ]
+  },
+  {
+    id:"aws", icon:"☁️", title:"AWS CLI & Infrastructure", subtitle:"Credentials and resource 'ghosts'",
+    color:"text-orange-400", bgColor:"bg-orange-500/10", borderColor:"border-orange-500/30", badgeColor:"bg-orange-500/20 text-orange-300",
+    commands:[
+      {cmd:"aws configure list",what:"Show all active AWS CLI configuration: keys, region, output format, and which profile is active",why:"Before ANY AWS CLI command fails, verify you're using the right credentials and region.",
+        tips:["Shows: profile, access_key (last 4 chars), secret_key (hidden), region, output format.","If region is wrong: aws configure set region us-east-1","Use named profiles: aws configure --profile devops then aws --profile devops ec2 describe-instances"]},
+      {cmd:"aws sts get-caller-identity",what:"Verify which AWS account, IAM user/role, and ARN your credentials belong to",why:"Confirm you're authenticated as the right user before running destructive commands. Prevents 'AccessDenied' confusion.",
+        tips:["Returns: Account ID, User ID, ARN — confirms you're in the right account.","If you get AccessDenied: your credentials are expired or the user has no STS permission.","For EC2 IAM Roles: this command works with no configuration needed."]},
+      {cmd:"aws ec2 describe-instances --filters Name=instance-state-name,Values=running",what:"List all currently running EC2 instances in the configured region",why:"Find 'ghost' resources that weren't cleaned up, verify your CI/CD deployed to the right instance.",
+        tips:["Add --query to get just the info you need: --query 'Reservations[].Instances[].{ID:InstanceId,IP:PublicIpAddress}'","Filter by tag: --filters Name=tag:Name,Values=devops-server","Check all regions for ghost resources: loop over aws ec2 describe-instances across regions."]},
+      {cmd:"aws s3 ls s3://your-bucket-name",what:"List contents of an S3 bucket — verify Terraform state files or deployment artifacts exist",why:"Confirm your S3 remote state backend exists and is accessible, or that CI/CD artifacts were uploaded.",
+        tips:["aws s3 ls — list all buckets in your account.","aws s3 cp s3://bucket/file.txt . — download a file from S3.","For Terraform state: aws s3 ls s3://your-tfstate-bucket/prod/terraform.tfstate"]}
+    ]
+  },
+  {
+    id:"connectivity", icon:"🔗", title:"The Connectivity Wall (Local → AWS)", subtitle:"SSH and networking troubleshooting",
+    color:"text-red-400", bgColor:"bg-red-500/10", borderColor:"border-red-500/30", badgeColor:"bg-red-500/20 text-red-300",
+    commands:[
+      {cmd:"ssh -v -i your-key.pem ubuntu@ip-address",what:"SSH with verbose debug output — shows every step of the connection handshake",why:"The -v flag shows exactly where SSH fails: DNS resolution, TCP connection, key exchange, authentication.",
+        flags:[{flag:"-v",meaning:"Verbose — 1 level of debug"},{flag:"-vv",meaning:"More verbose"},{flag:"-vvv",meaning:"Maximum verbosity — full protocol debug"}],
+        tips:["'Permission denied (publickey)' = wrong key or wrong permissions on .pem file","chmod 400 key.pem — MUST be owner-read-only or SSH refuses the key","'Connection refused' = port 22 not open in Security Group or SSH service down","'Connection timed out' = Security Group blocking port 22 entirely"]},
+      {cmd:"nc -zv <ip-address> 22",what:"Test TCP connectivity to a specific IP and port — without SSH authentication",why:"Isolate network/firewall issues from authentication issues. If nc fails, the port isn't reachable at all.",
+        tips:["nc -zv ip 22 — tests if port 22 is reachable (ignores auth)","nc -zv ip 80 — test if your web server port is open","If nc fails but ping works = port blocked (Security Group issue)","If ping also fails = instance is down or wrong IP"]},
+      {cmd:"curl -I http://<ip-address>",what:"Send HTTP HEAD request — check if web server responds with headers",why:"Test if Nginx/web server is reachable and responding before deeper debugging.",
+        tips:["curl -I shows headers: HTTP status code, server type, content-type.","200 = server working. 301/302 = redirect. 502 = upstream down. 000 = no connection.","curl -v http://ip — full verbose output with request and response details."]}
+    ]
+  },
+  {
+    id:"local", icon:"🖥️", title:"Local System Sanity Checks", subtitle:"Verify tools are installed and working correctly",
+    color:"text-green-400", bgColor:"bg-green-500/10", borderColor:"border-green-500/30", badgeColor:"bg-green-500/20 text-green-300",
+    commands:[
+      {cmd:"which <command>",what:"Show the full filesystem path where a command binary is located",why:"Verify a tool is installed and is being used from the expected location. Debug PATH issues.",
+        tips:["which docker && which terraform && which kubectl — verify all tools at once","If 'which' returns nothing = command not installed or not in PATH","where (Windows) or type -a command (bash) show all locations in PATH","Check PATH: echo \$PATH"]},
+      {cmd:"tail -f ~/.ssh/known_hosts",what:"Monitor the SSH known hosts file in real-time",why:"When SSH gives 'WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED', the known_hosts entry is the problem.",
+        tips:["Remove a stale entry: ssh-keygen -R ip-address (cleanest way)","Or manually: grep -v 'ip-address' ~/.ssh/known_hosts > ~/.ssh/known_hosts.tmp && mv it back","This warning appears when: EC2 instance is replaced (new host key) or IP reassigned to different server.","In CI/CD: use StrictHostKeyChecking=no or pre-populate known_hosts to avoid pipeline failures."]}
+    ]
+  }
+];
+
+const SURVIVAL_SCENARIOS = [
+  {id:"s1",title:"🔥 Production is Down — App Not Responding",severity:"critical",symptom:"Users report 503 errors. App completely unreachable.",
+    diagnosis:['ssh ubuntu@YOUR_EC2_IP','# Step 1: Is the server up?','uptime && free -h','# Step 2: Is nginx running?','systemctl status nginx','ss -tulpn | grep :80','# Step 3: Is the app container running?','docker ps -a | grep myapp','docker logs myapp --tail 30','# Step 4: Test each layer','curl -v http://localhost:3000/health','curl -v http://localhost:80','# Step 5: Check resource saturation','htop'],
+    fix:"Work top-down: Nginx → Docker → App. Restart the broken layer. Check logs for root cause.",
+    tools:["ssh","systemctl","ss","docker ps","docker logs","curl","htop"]},
+  {id:"s2",title:"💥 Container Keeps Restarting (CrashLoop)",severity:"critical",symptom:"docker ps shows container in restart loop. Status flips running/exited.",
+    diagnosis:['docker ps -a | grep myapp','# Note: RestartCount in STATE column','docker logs myapp --tail 50','# Read the crash reason carefully','docker inspect myapp | grep -A5 State','# Check ExitCode: 1=app error, 137=OOM killed, 143=SIGTERM','docker stats --no-stream | grep myapp'],
+    fix:"ExitCode 1 = fix code bug. ExitCode 137 = increase memory limit. ExitCode 143 = graceful shutdown issue.",
+    tools:["docker ps","docker logs","docker inspect","docker stats"]},
+  {id:"s3",title:"🌐 Port Conflict — App Won't Start",severity:"warning",symptom:"Error: listen EADDRINUSE: address already in use :::3000",
+    diagnosis:['ss -tulpn | grep :3000','# Identify what\'s using port 3000','kill -9 <PID>','# If it\'s docker:','docker ps | grep 3000','docker stop old-container','ss -tulpn | grep :3000','# Should be empty now'],
+    fix:"Kill the process using the port. Check for zombie Docker containers. Then restart your app.",
+    tools:["ss","kill","docker ps","docker stop"]},
+  {id:"s4",title:"📋 Nginx Shows 502 Bad Gateway",severity:"critical",symptom:"Browser shows 502. Nginx is running but upstream is dead.",
+    diagnosis:['journalctl -u nginx -n 20 --no-pager','# Look for connect() failed or upstream','curl -v http://localhost:3000','# Direct app test — bypasses nginx','ss -tulpn | grep :3000','# Is app listening?','docker ps | grep myapp','docker logs myapp --tail 20'],
+    fix:"502 means nginx is fine but upstream (your app) is down. Restart the app container.",
+    tools:["journalctl","curl","ss","docker ps","docker logs"]},
+  {id:"s5",title:"💾 Disk Full — Everything Breaks",severity:"critical",symptom:"Write errors everywhere. Docker fails. Logs stop writing.",
+    diagnosis:['df -h','# Find the full partition','du -sh /var/lib/docker','# Docker often the culprit','du -sh /var/log/*','docker system df','# Docker space breakdown','docker system prune -f','journalctl --vacuum-time=3d','find /var/log -name \'*.log\' -mtime +7 -delete'],
+    fix:"Clean Docker cache first (usually biggest). Then vacuum old logs. Add log rotation.",
+    tools:["df","du","docker system prune","journalctl"]},
+  {id:"s6",title:"🔒 SSH Access Denied to EC2",severity:"critical",symptom:"Permission denied (publickey). Can't SSH into server.",
+    diagnosis:['ls -la ~/.ssh/devops-key.pem','# Must be 400 (owner read-only)','chmod 400 ~/.ssh/devops-key.pem','ssh -v ubuntu@YOUR_EC2_IP','# Verbose — shows exact auth failure','curl ifconfig.me','# Get your current public IP','# Then update Security Group in AWS Console'],
+    fix:"chmod 400 on .pem file. Update Security Group with your current IP. Use AWS console.",
+    tools:["chmod","ssh -v","curl","AWS Console"]},
+  {id:"s7",title:"☸️ Kubernetes Pod in CrashLoopBackOff",severity:"critical",symptom:"Pod restarts 5+ times. kubectl get pods shows CrashLoopBackOff.",
+    diagnosis:['kubectl get pods -A | grep -v Running','kubectl describe pod <pod-name>','# Read Events section at bottom','kubectl logs <pod-name> -p','# PREVIOUS container logs — the actual crash','kubectl get events --sort-by=\'.lastTimestamp\' | tail -20','kubectl top pods'],
+    fix:"Read previous container logs (-p flag). Exit code 1 = app crash. Exit code 137 = OOMKilled.",
+    tools:["kubectl get pods","kubectl describe","kubectl logs -p","kubectl events","kubectl top"]},
+  {id:"s8",title:"🏗️ Terraform Apply Fails — AWS API Error",severity:"warning",symptom:"terraform apply fails with AccessDenied or InvalidParameter error.",
+    diagnosis:['aws sts get-caller-identity','terraform plan','TF_LOG=DEBUG terraform apply 2>&1 | grep -E \'ERROR|AccessDenied|Invalid\'','terraform validate','terraform state list','terraform show'],
+    fix:"AccessDenied = add IAM permission. InvalidParameter = check resource config. State drift = terraform import.",
+    tools:["aws sts","terraform plan","TF_LOG","terraform validate","terraform state"]}
+];
+
+const CHEATSHEET = [
+  {category:"Process & CPU",icon:"🔬",color:"text-violet-400",
+    items:[{cmd:"htop",desc:"Interactive process monitor"},{cmd:"top -b -n 1 | head -20",desc:"Quick system snapshot"},{cmd:"ps aux | grep node",desc:"Find all node processes"},{cmd:"kill -9 PID",desc:"Force kill process"},{cmd:"pkill -f 'node app.js'",desc:"Kill by name"},{cmd:"nohup node app.js &",desc:"Run in background"}]},
+  {category:"Network & Ports",icon:"🌐",color:"text-cyan-400",
+    items:[{cmd:"ss -tulpn",desc:"All listening ports + PID"},{cmd:"ss -tulpn | grep :3000",desc:"Check specific port"},{cmd:"netstat -tulpn",desc:"Classic port listing"},{cmd:"curl -I http://localhost",desc:"HTTP headers only"},{cmd:"curl -s -o /dev/null -w '%{http_code}'",desc:"Status code only"},{cmd:"nc -zv ip 22",desc:"Test TCP port reachability"}]},
+  {category:"Logs & Journals",icon:"📋",color:"text-amber-400",
+    items:[{cmd:"journalctl -u nginx -f",desc:"Follow nginx logs"},{cmd:"journalctl -u nginx -n 50",desc:"Last 50 nginx lines"},{cmd:"journalctl -p err --since today",desc:"Today's errors"},{cmd:"journalctl -b -1 -p err",desc:"Previous boot errors"},{cmd:"tail -f /var/log/syslog",desc:"System log stream"},{cmd:"journalctl --vacuum-time=7d",desc:"Clean old logs"}]},
+  {category:"Docker",icon:"🐳",color:"text-blue-400",
+    items:[{cmd:"docker ps -a",desc:"All containers incl. stopped"},{cmd:"docker logs myapp -f",desc:"Follow container logs"},{cmd:"docker exec -it myapp /bin/bash",desc:"Shell into container"},{cmd:"docker inspect myapp | grep State",desc:"Container state"},{cmd:"docker stats --no-stream",desc:"Resource usage snapshot"},{cmd:"docker system prune -f",desc:"Clean all unused resources"}]},
+  {category:"Kubernetes",icon:"☸️",color:"text-cyan-300",
+    items:[{cmd:"kubectl get pods -A",desc:"All pods all namespaces"},{cmd:"kubectl describe pod name",desc:"Full pod details + events"},{cmd:"kubectl logs pod -p",desc:"Previous crashed container logs"},{cmd:"kubectl get events --sort-by='.lastTimestamp'",desc:"Cluster event log"},{cmd:"kubectl top pods",desc:"Real-time CPU/memory per pod"},{cmd:"kubectl exec -it pod -- /bin/sh",desc:"Shell into pod"}]},
+  {category:"Terraform",icon:"🏗️",color:"text-blue-300",
+    items:[{cmd:"terraform plan",desc:"Preview changes before apply"},{cmd:"terraform state list",desc:"All tracked resources"},{cmd:"terraform validate",desc:"Validate config syntax"},{cmd:"terraform fmt -check",desc:"Check formatting (CI)"},{cmd:"TF_LOG=DEBUG terraform apply",desc:"Debug mode apply"},{cmd:"terraform destroy -target=resource",desc:"Destroy one resource"}]},
+  {category:"Git & GitHub",icon:"🐙",color:"text-slate-300",
+    items:[{cmd:"git remote -v",desc:"Check remote URLs"},{cmd:"ssh -T git@github.com",desc:"Test GitHub SSH auth"},{cmd:"git log --oneline -5",desc:"Last 5 commits"},{cmd:"git reflog",desc:"All HEAD movements"},{cmd:"git clean -nfd",desc:"Dry-run clean (preview)"},{cmd:"git stash && git pull",desc:"Save work, pull latest"}]},
+  {category:"AWS CLI",icon:"☁️",color:"text-orange-400",
+    items:[{cmd:"aws configure list",desc:"Show active credentials"},{cmd:"aws sts get-caller-identity",desc:"Verify which account/user"},{cmd:"aws ec2 describe-instances --filters Name=instance-state-name,Values=running",desc:"Running EC2 instances"},{cmd:"aws s3 ls s3://bucket",desc:"List S3 bucket contents"},{cmd:"ssh-keygen -R ip",desc:"Remove stale SSH host key"},{cmd:"nc -zv ip 22",desc:"Test SSH port reachable"}]},
+  {category:"Disk & Files",icon:"💾",color:"text-green-400",
+    items:[{cmd:"df -h",desc:"Disk usage by filesystem"},{cmd:"du -sh /var/lib/docker",desc:"Docker disk usage"},{cmd:"lsof -i :80",desc:"Process using port 80"},{cmd:"find /var/log -name '*.log' -size +100M",desc:"Find large log files"},{cmd:"docker system df",desc:"Docker space breakdown"},{cmd:"which docker && which terraform",desc:"Verify tools installed"}]},
+  {category:"System & SSH",icon:"🖥️",color:"text-red-400",
+    items:[{cmd:"ip addr",desc:"All network interfaces + IPs"},{cmd:"nslookup servicename",desc:"DNS resolution test"},{cmd:"uptime && free -h",desc:"System uptime + RAM"},{cmd:"ssh -v -i key.pem ubuntu@ip",desc:"SSH verbose debug"},{cmd:"chmod 400 key.pem",desc:"Fix SSH key permissions"},{cmd:"curl -I http://ip-address",desc:"Test server HTTP response"}]}
+];
+
+// RUN GUIDE DATA
+const LOCAL_STEPS = [
+  {id:1,title:"Prerequisites — Install Required Tools",description:"Before running locally, make sure you have all required tools installed on your machine. These are the same tools used throughout all 5 projects.",
+    commands:['# ── Check if already installed ──────────────────','node --version          # Need v18+','npm --version           # Need v9+','docker --version        # Need v24+','docker compose version  # Need v2+','git --version           # Need v2.40+','','# ── Install Node.js (via nvm — recommended) ──','curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash','source ~/.bashrc','nvm install 18','nvm use 18','','# ── Install Docker (Ubuntu/Debian) ───────────','sudo apt-get update','sudo apt-get install -y docker.io docker-compose-plugin','sudo systemctl enable docker && sudo systemctl start docker','sudo usermod -aG docker $USER','newgrp docker','','# ── Install Git ──────────────────────────────','sudo apt-get install -y git   # Linux','brew install git              # Mac'],
+    tips:["On Windows: Use WSL2 for the best experience. Install Ubuntu from the Microsoft Store.","Docker Desktop is the easiest way to get Docker + Docker Compose on Mac and Windows."]},
+  {id:2,title:"Clone & Set Up the Application",description:"Clone the repository and install all Node.js dependencies. This is the app that will be Dockerized and deployed.",
+    commands:['git clone https://github.com/YOUR_USERNAME/my-devops-app.git','cd my-devops-app','npm install','','# Create environment file','cp .env.example .env','# OR create manually:','echo "NODE_ENV=development" > .env','echo "PORT=3000" >> .env','','# Run the app directly','node app.js','','# Test it','curl http://localhost:3000/','curl http://localhost:3000/health'],
+    tips:["The app runs on port 3000 by default. Visit http://localhost:3000 in your browser.","Never commit your .env file. Add it to .gitignore."],
+    warnings:["Make sure nothing else is running on port 3000. Check with: lsof -i :3000"]},
+  {id:3,title:"Build & Run with Docker Locally",description:"Build the Docker image locally and run it as a container. This simulates exactly what will happen in production on EC2.",
+    commands:['docker build -t my-devops-app:latest .','docker images | grep my-devops-app','','docker run -d \\','  --name myapp \\','  --restart unless-stopped \\','  -p 3000:3000 \\','  -e NODE_ENV=production \\','  my-devops-app:latest','','docker ps','docker logs -f myapp','curl http://localhost:3000/health'],
+    tips:["The -d flag runs the container in detached (background) mode.","Run `docker exec -it myapp sh` to open a shell inside the container for debugging."],
+    checks:["docker ps shows container as 'Up'","http://localhost:3000 returns JSON response","http://localhost:3000/health returns { status: 'healthy' }"]},
+  {id:4,title:"Run with Docker Compose (Full Stack Locally)",description:"Use Docker Compose to spin up the entire stack — app + Nginx reverse proxy — locally with a single command.",
+    commands:['mkdir -p nginx','docker compose up -d','docker compose logs -f','docker compose ps','curl http://localhost/','curl http://localhost/health','','# Rebuild after code changes','docker compose up -d --build','','# Stop everything','docker compose down'],
+    code:[{filename:"docker-compose.yml",content:`version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: myapp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge`}],
+    tips:["App is now accessible at http://localhost (port 80 via Nginx) — exactly like production."]},
+  {id:5,title:"Test GitHub Actions Pipeline Locally",description:"Use the 'act' tool to test your GitHub Actions workflow locally before pushing to GitHub.",
+    commands:['# Install act (Mac)','brew install act','','# Linux:','curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash','','# Create local secrets file','cat > .secrets << EOF','DOCKERHUB_USERNAME=yourusername','DOCKERHUB_TOKEN=yourtoken','EC2_HOST=your-ec2-ip','EC2_USER=ubuntu','EOF','','# Run the CI workflow locally','act push --secret-file .secrets','','# Run a specific job only','act push -j build-and-test --secret-file .secrets'],
+    tips:["Add .secrets to your .gitignore — never commit this file!","'act' requires Docker to be running."],
+    warnings:["The deploy job (SSH to EC2) won't work locally unless you have a real EC2 instance accessible."]},
+  {id:6,title:"Local Port Reference & Service URLs",description:"Quick reference for all ports used when running the full DevOps stack locally.",
+    code:[{filename:"Local Services Reference",content:`┌─────────────────────────────────────────────────────┐
+│            LOCAL SERVICES PORT REFERENCE            │
+├──────────────────┬──────┬───────────────────────────┤
+│ Service          │ Port │ URL                       │
+├──────────────────┼──────┼───────────────────────────┤
+│ Node.js App      │ 3000 │ http://localhost:3000     │
+│ Nginx (proxy)    │  80  │ http://localhost           │
+│ Prometheus       │ 9090 │ http://localhost:9090     │
+│ Grafana          │ 3001 │ http://localhost:3001     │
+│ Node Exporter    │ 9100 │ http://localhost:9100     │
+│ Alertmanager     │ 9093 │ http://localhost:9093     │
+└──────────────────┴──────┴───────────────────────────┘
+
+Default Credentials:
+  Grafana:  admin / admin123
+  Prometheus: no auth (dev only)`}],
+    tips:["Use http://localhost (port 80) as your main entry point — that's what Nginx serves."]}
+];
+
+const AWS_STEPS = [
+  {id:1,title:"AWS Account Setup & IAM User",description:"Set up your AWS account with proper IAM permissions and install the AWS CLI.",
+    commands:['curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"','unzip awscliv2.zip','sudo ./aws/install','aws --version','','# Configure with IAM user credentials','aws configure','# AWS Access Key ID: [paste your access key]','# AWS Secret Access Key: [paste your secret key]','# Default region name: us-east-1','# Default output format: json','','# Verify configuration','aws sts get-caller-identity'],
+    tips:["Go to AWS Console → IAM → Users → Create User. Attach policy: 'AdministratorAccess' for learning.","Store credentials in ~/.aws/credentials — never paste them into code files."],
+    warnings:["NEVER commit AWS credentials to GitHub. Bots scan for this and will rack up charges within minutes.","Enable MFA on your AWS root account immediately after creating it."]},
+  {id:2,title:"Launch EC2 Instance",description:"Launch a t2.micro EC2 instance (free tier eligible) with Ubuntu 22.04.",
+    commands:['# Step 1: Create a Key Pair','aws ec2 create-key-pair \\','  --key-name devops-key \\','  --query \'KeyMaterial\' \\','  --output text > devops-key.pem','chmod 400 devops-key.pem','','# Step 2: Create Security Group','aws ec2 create-security-group \\','  --group-name devops-sg \\','  --description "DevOps Portfolio Security Group"','','# Step 3: Add SSH, HTTP, HTTPS rules','aws ec2 authorize-security-group-ingress \\','  --group-name devops-sg \\','  --protocol tcp --port 22 --cidr 0.0.0.0/0','','aws ec2 authorize-security-group-ingress \\','  --group-name devops-sg \\','  --protocol tcp --port 80 --cidr 0.0.0.0/0','','# Step 4: Launch EC2 Instance','aws ec2 run-instances \\','  --image-id ami-0c7217cdde317cfec \\','  --instance-type t2.micro \\','  --key-name devops-key \\','  --security-groups devops-sg \\','  --tag-specifications \'ResourceType=instance,Tags=[{Key=Name,Value=devops-server}]\'','','# Step 5: Get Public IP','aws ec2 describe-instances \\','  --filters "Name=tag:Name,Values=devops-server" \\','  --query \'Reservations[0].Instances[0].PublicIpAddress\' \\','  --output text'],
+    tips:["AMI ID ami-0c7217cdde317cfec is Ubuntu 22.04 LTS in us-east-1.","t2.micro is free tier eligible — perfect for portfolio projects."],
+    warnings:["The .pem key file can only be downloaded ONCE. Store it securely."]},
+  {id:3,title:"SSH Into EC2 & Install Docker + Nginx",description:"Connect to your EC2 instance via SSH and install all required software.",
+    commands:['ssh -i devops-key.pem ubuntu@YOUR_EC2_PUBLIC_IP','','# Update system packages','sudo apt-get update && sudo apt-get upgrade -y','','# Install Docker','sudo apt-get install -y docker.io','sudo systemctl enable docker','sudo systemctl start docker','sudo usermod -aG docker ubuntu','newgrp docker','','# Install Nginx','sudo apt-get install -y nginx','sudo systemctl enable nginx','sudo systemctl start nginx','','# Verify installations','docker --version','nginx -v','sudo systemctl status docker','sudo systemctl status nginx'],
+    tips:["After running `sudo usermod -aG docker ubuntu`, run `newgrp docker` to apply without re-login."],
+    checks:["SSH connection works","Docker runs without sudo: docker ps","Nginx default page loads: curl http://YOUR_EC2_IP","sudo systemctl status docker → active (running)"]},
+  {id:4,title:"Deploy Application Manually (First Time)",description:"Pull your Docker image from Docker Hub and run it on EC2.",
+    commands:['docker pull YOUR_DOCKERHUB_USERNAME/my-devops-app:latest','','docker stop myapp 2>/dev/null || true','docker rm myapp 2>/dev/null || true','','docker run -d \\','  --name myapp \\','  --restart unless-stopped \\','  -p 3000:3000 \\','  -e NODE_ENV=production \\','  YOUR_DOCKERHUB_USERNAME/my-devops-app:latest','','docker ps','docker logs myapp','curl http://localhost:3000/health'],
+    code:[{filename:"/etc/nginx/sites-available/myapp",content:`server {
+    listen 80;
+    server_name YOUR_EC2_PUBLIC_IP;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    location /health {
+        proxy_pass http://localhost:3000/health;
+        access_log off;
+    }
+}`}],
+    tips:["After saving Nginx config: sudo nginx -t then sudo systemctl reload nginx","Enable your site: sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/","Disable default: sudo rm /etc/nginx/sites-enabled/default"]},
+  {id:5,title:"Add GitHub Secrets for Automated Deployment",description:"Store EC2 credentials as GitHub Secrets so the CI/CD pipeline can deploy automatically.",
+    commands:['# Get your EC2 public IP','aws ec2 describe-instances \\','  --filters "Name=tag:Name,Values=devops-server" \\','  --query \'Reservations[0].Instances[0].PublicIpAddress\' \\','  --output text','','# Read your .pem key (paste into GitHub Secret)','cat devops-key.pem','','# Go to: GitHub Repo → Settings → Secrets → Actions → New Secret','#','# DOCKERHUB_USERNAME  → your Docker Hub username','# DOCKERHUB_TOKEN     → Docker Hub access token','# EC2_HOST            → your EC2 public IP','# EC2_USER            → ubuntu','# EC2_SSH_KEY         → full content of devops-key.pem','','# Trigger pipeline','git commit --allow-empty -m "test: trigger CI/CD"','git push origin main'],
+    tips:["For EC2_SSH_KEY: copy the ENTIRE .pem file including -----BEGIN RSA PRIVATE KEY----- header."],
+    warnings:["Never paste your .pem key into any file that gets committed to git."]},
+  {id:6,title:"Configure EC2 for Auto-Start & Reliability",description:"Make your EC2 server production-ready: auto-start containers on reboot, set up log rotation.",
+    commands:['docker inspect myapp | grep RestartPolicy','','sudo apt-get install -y unattended-upgrades','sudo dpkg-reconfigure --priority=low unattended-upgrades'],
+    code:[{filename:"/etc/docker/daemon.json",content:`{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}`}],
+    tips:["With --restart unless-stopped, Docker auto-starts all your containers when EC2 reboots.","Log rotation prevents your disk from filling up with container logs over time."]},
+  {id:7,title:"EC2 Monitoring & Useful Commands",description:"Essential commands for monitoring and debugging your running application on EC2.",
+    commands:['# APPLICATION MONITORING','docker logs -f myapp','docker stats myapp','docker ps','','# SERVER MONITORING','htop','free -h','df -h','','# Nginx logs','sudo tail -f /var/log/nginx/access.log','sudo tail -f /var/log/nginx/error.log','','# DEPLOYMENT COMMANDS','docker pull YOUR_USERNAME/my-devops-app:latest','docker stop myapp && docker rm myapp','docker run -d --name myapp --restart unless-stopped -p 3000:3000 YOUR_USERNAME/my-devops-app:latest','','# Clean up old Docker images','docker image prune -f','docker system df'],
+    tips:["Install htop: sudo apt install htop — much better than top for monitoring.","Use `watch docker stats myapp` to refresh container stats every 2 seconds."],
+    checks:["http://YOUR_EC2_IP/ → app response (through Nginx)","http://YOUR_EC2_IP/health → { status: 'healthy' }","GitHub Actions → green checkmarks on all 3 jobs"]},
+  {id:8,title:"AWS Security Checklist",description:"Lock down your EC2 instance with security best practices before showing this in your portfolio.",
+    code:[{filename:"AWS EC2 Security Checklist",content:`EC2 Security Checklist for DevOps Portfolio
+═══════════════════════════════════════════
+
+✅ Security Group Rules
+   → Port 22 (SSH): Open to your IP only, NOT 0.0.0.0/0
+   → Port 80 (HTTP): Open to 0.0.0.0/0 ✓
+   → Port 443 (HTTPS): Open to 0.0.0.0/0 ✓
+   → Port 3000: NOT open to internet (only internal)
+
+✅ Instance Hardening
+   → SSH key auth only (password disabled by default on Ubuntu)
+   → Non-root user: ubuntu (not root)
+   → Auto security updates enabled
+   → Docker running as non-root inside container
+
+✅ AWS Account Security
+   → MFA enabled on root account
+   → IAM user used (not root) for CLI
+   → No credentials committed to git
+   → GitHub Secrets used for all sensitive values
+
+✅ Application Security
+   → .env not in Docker image
+   → Nginx security headers configured
+   → Docker image uses non-root user
+   → HEALTHCHECK defined in Dockerfile`}],
+    tips:["Find your current IP: curl ifconfig.me","Add SSL/TLS with Let's Encrypt: sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx"],
+    warnings:["Port 22 open to 0.0.0.0/0 means bots will try to brute-force SSH — restrict to your IP."]}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let currentView = 'run';
+let completedSteps = new Set();
+const totalSteps = PROJECTS.reduce((a, p) => a + p.steps.length, 0);
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyToClipboard(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied!';
+    btn.classList.add('text-green-400');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('text-green-400'); }, 2000);
+  });
+}
+
+function codeBlock(content, filename, lang='bash') {
+  const isTerminal = lang === 'bash';
+  const icon = isTerminal ? '⬛' : '📄';
+  const id = 'code-' + Math.random().toString(36).substr(2,9);
+  const escapedContent = escapeHtml(content);
+  const rawContent = content;
+  return `<div class="rounded-xl overflow-hidden border border-slate-700/60 bg-slate-900/80 mt-3">
+    <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/60">
+      <div class="flex items-center gap-2">
+        <span class="${isTerminal ? 'text-green-400' : 'text-blue-400'} text-sm">${icon}</span>
+        <span class="text-xs font-mono text-slate-400">${escapeHtml(filename || lang)}</span>
+      </div>
+      <button onclick="copyToClipboard(document.getElementById('${id}').textContent, this)" class="copy-btn flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors bg-slate-700/50 hover:bg-slate-700 px-2 py-1 rounded-md">
+        📋 Copy
+      </button>
+    </div>
+    <pre class="overflow-x-auto p-4 text-sm font-mono text-slate-200 leading-relaxed"><code id="${id}">${escapedContent}</code></pre>
+  </div>`;
+}
+
+function tipsBlock(tips, type='tip') {
+  if (!tips || !tips.length) return '';
+  const cfg = {
+    tip: {bg:'bg-blue-500/5',border:'border-blue-500/20',tc:'text-blue-400',label:'💡 Tips & Best Practices',arrow:'text-blue-400'},
+    warn: {bg:'bg-amber-500/5',border:'border-amber-500/20',tc:'text-amber-400',label:'⚠️ Important Warnings',arrow:'text-amber-400'},
+    danger: {bg:'bg-red-500/5',border:'border-red-500/20',tc:'text-red-400',label:'🚨 Danger',arrow:'text-red-400'},
+    check: {bg:'bg-green-500/5',border:'border-green-500/20',tc:'text-green-400',label:'✅ Verification Checks',arrow:'text-green-400'},
+  };
+  const c = cfg[type];
+  return `<div class="rounded-xl ${c.bg} border ${c.border} p-4">
+    <div class="text-xs font-semibold ${c.tc} uppercase tracking-wider mb-2">${c.label}</div>
+    <ul class="space-y-1.5">
+      ${tips.map(t => `<li class="flex gap-2 text-sm text-slate-300"><span class="${c.arrow} mt-0.5 flex-shrink-0">→</span><span>${escapeHtml(t)}</span></li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════════════════════════
+function updateProgress() {
+  const pct = totalSteps > 0 ? Math.round((completedSteps.size / totalSteps) * 100) : 0;
+  document.getElementById('hdr-progress-text').textContent = `${completedSteps.size}/${totalSteps} steps`;
+  document.getElementById('hdr-progress-bar').style.width = pct + '%';
+  document.getElementById('hdr-progress-pct').textContent = pct + '%';
+  document.getElementById('sidebar-pct').textContent = pct + '%';
+  document.getElementById('sidebar-progress-bar').style.width = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SIDEBAR RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderSidebar(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  let html = `
+    <button onclick="setView('run')" class="w-full text-left rounded-xl p-3 transition-all duration-200 border mb-1.5 ${currentView==='run'?'border-cyan-500/40 bg-cyan-500/10':'border-transparent hover:border-slate-700 hover:bg-slate-800/40'}">
+      <div class="flex items-center gap-3">
+        <span class="text-xl">🖥️</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-semibold ${currentView==='run'?'text-cyan-400':'text-slate-400'}">Guide</div>
+          <div class="text-sm font-medium ${currentView==='run'?'text-white':'text-slate-300'}">How to Run</div>
+        </div>
+        ${currentView==='run'?'<div class="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>':''}
+      </div>
+    </button>
+    <button onclick="setView('debug')" class="w-full text-left rounded-xl p-3 transition-all duration-200 border mb-1.5 ${currentView==='debug'?'border-red-500/40 bg-red-500/10':'border-transparent hover:border-slate-700 hover:bg-slate-800/40'}">
+      <div class="flex items-center gap-3">
+        <span class="text-xl">🛠️</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-semibold ${currentView==='debug'?'text-red-400':'text-slate-400'}">Survival</div>
+          <div class="text-sm font-medium ${currentView==='debug'?'text-white':'text-slate-300'}">Debug Toolkit</div>
+        </div>
+        <span class="flex-shrink-0 text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded-full">HOT</span>
+      </div>
+    </button>
+    <div class="pt-2 pb-1"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-1">Projects</div></div>`;
+
+  PROJECTS.forEach((p, i) => {
+    const doneCount = p.steps.filter(s => completedSteps.has(`${p.id}-${s.id}`)).length;
+    const pct = Math.round((doneCount / p.steps.length) * 100);
+    const prevDone = i === 0 || PROJECTS[i-1].steps.every(s => completedSteps.has(`${PROJECTS[i-1].id}-${s.id}`));
+    const isLocked = !prevDone;
+    const isActive = currentView === `project-${p.id}`;
+
+    html += `<button onclick="${isLocked?'':'setView(\'project-'+p.id+'\')'}" ${isLocked?'disabled':''} class="w-full text-left rounded-xl p-3 transition-all duration-200 border mb-1.5 ${isActive?p.borderColor+' '+p.bgColor+' shadow-lg':isLocked?'border-slate-800 bg-slate-900/30 opacity-50 cursor-not-allowed':'border-transparent hover:border-slate-700 hover:bg-slate-800/40'}">
+      <div class="flex items-center gap-3">
+        <span class="text-xl">${p.icon}</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-semibold ${isActive?p.color:'text-slate-400'}">Project ${p.id}</span>
+            ${isLocked?'<svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>':''}
+          </div>
+          <div class="text-sm font-medium truncate ${isActive?'text-white':'text-slate-300'}">${p.title}</div>
+          ${pct>0?`<div class="mt-1.5"><div class="w-full h-1 bg-slate-700 rounded-full overflow-hidden"><div class="h-full rounded-full ${pct===100?'bg-green-500':p.barColor}" style="width:${pct}%"></div></div></div>`:''}
+        </div>
+        ${pct===100?'<span class="flex-shrink-0 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">✓</span>':''}
+      </div>
+    </button>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function renderAllSidebars() {
+  renderSidebar('desktop-sidebar-nav');
+  renderSidebar('mobile-sidebar-content');
+  updateNavTabs();
+}
+
+function updateNavTabs() {
+  document.getElementById('nav-run').className = `nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentView==='run'?'bg-cyan-500 text-white':'text-slate-400 hover:text-white'}`;
+  document.getElementById('nav-debug').className = `nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentView==='debug'?'bg-red-500 text-white':'text-slate-400 hover:text-white'}`;
+  document.getElementById('nav-projects').className = `nav-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentView.startsWith('project')?'bg-violet-500 text-white':'text-slate-400 hover:text-white'}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VIEW ROUTER
+// ═══════════════════════════════════════════════════════════════
+function setView(view) {
+  currentView = view;
+  renderAllSidebars();
+  const main = document.getElementById('main-content');
+
+  if (view === 'run') { main.innerHTML = renderRunGuide(); }
+  else if (view === 'debug') { main.innerHTML = renderDebugToolkit(); initDebugToolkit(); }
+  else if (view.startsWith('project-')) {
+    const id = parseInt(view.split('-')[1]);
+    const project = PROJECTS.find(p => p.id === id);
+    if (project) main.innerHTML = renderProjectView(project);
+  }
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROJECT VIEW
+// ═══════════════════════════════════════════════════════════════
+function renderProjectView(project) {
+  const doneCount = project.steps.filter(s => completedSteps.has(`${project.id}-${s.id}`)).length;
+  const progress = Math.round((doneCount / project.steps.length) * 100);
+
+  let stepsHtml = project.steps.map((step, i) => {
+    const key = `${project.id}-${step.id}`;
+    const done = completedSteps.has(key);
+    const isFirst = i === 0;
+
+    let body = `<p class="text-slate-300 leading-relaxed mb-4">${escapeHtml(step.description)}</p>`;
+    if (step.commands?.length) body += `<div class="mb-4"><div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Terminal Commands</div>${codeBlock(step.commands.join('\n'),'bash')}</div>`;
+    if (step.code?.length) body += `<div class="space-y-3 mb-4"><div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Code Files</div>${step.code.map(f=>codeBlock(f.content,f.filename,'code')).join('')}</div>`;
+    if (step.tips?.length) body += tipsBlock(step.tips,'tip');
+    if (step.warnings?.length) body += tipsBlock(step.warnings,'warn');
+
+    return `<div class="rounded-2xl border transition-all duration-300 ${done?'border-green-500/40 bg-green-900/10':'border-slate-700/50 bg-slate-800/40'} overflow-hidden mb-3" id="step-wrap-${key}">
+      <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-white/5 transition-colors" onclick="toggleStep('${key}')">
+        <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition-all ${done?'bg-green-500 text-white':project.bgColor+' '+project.color}">
+          ${done?'✓':step.id}
+        </div>
+        <div class="flex-1 min-w-0">
+          <span class="font-semibold text-white ${done?'line-through opacity-60':''}">${escapeHtml(step.title)}</span>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <button onclick="event.stopPropagation(); markStep('${key}', ${project.id})" class="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all font-medium ${done?'border-green-500/50 text-green-400 bg-green-500/10 hover:bg-green-500/20':'border-slate-600 text-slate-400 hover:text-white hover:border-slate-400'}">
+            ${done?'✓ Done':'Mark done'}
+          </button>
+          <span class="text-slate-500 chevron ${isFirst?'open':''}" id="chev-${key}">▼</span>
+        </div>
+      </div>
+      <div class="step-body ${isFirst?'open':''} px-5 pb-6 border-t border-slate-700/40 pt-5" id="body-${key}">
+        ${body}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="space-y-6">
+    <div class="rounded-2xl border ${project.borderColor} ${project.bgColor} p-6">
+      <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+        <span class="text-5xl">${project.icon}</span>
+        <div class="flex-1">
+          <div class="flex flex-wrap gap-2 mb-2">${project.tools.map(t=>`<span class="text-xs px-2.5 py-1 rounded-full font-medium ${project.badgeColor}">${t}</span>`).join('')}</div>
+          <h2 class="text-2xl font-bold text-white mb-1">Project ${project.id}: ${escapeHtml(project.title)}</h2>
+          <p class="font-medium ${project.color} mb-3">${escapeHtml(project.subtitle)}</p>
+          <p class="text-slate-300 text-sm leading-relaxed">${escapeHtml(project.overview)}</p>
+        </div>
+      </div>
+      ${project.pipeline?`<div class="mt-5 pt-5 border-t border-white/10">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider mr-1">Pipeline:</span>
+          ${project.pipeline.map((s,i)=>`<span class="text-sm font-semibold px-3 py-1 rounded-full ${project.badgeColor}">${s}</span>${i<project.pipeline.length-1?'<span class="text-slate-500">→</span>':''}`).join('')}
+        </div>
+      </div>`:''}
+      <div class="mt-5 pt-4 border-t border-white/10">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-slate-400">Progress</span>
+          <span class="text-xs font-bold ${project.color}" id="proj-progress-text-${project.id}">${doneCount}/${project.steps.length} steps • ${progress}%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-700/60 rounded-full overflow-hidden">
+          <div id="proj-progress-bar-${project.id}" class="h-full rounded-full transition-all duration-500 ${project.barColor}" style="width:${progress}%"></div>
+        </div>
+        ${progress===100?`<div class="mt-3 text-center text-sm font-semibold text-green-400">🎉 Project ${project.id} Complete! You can now unlock the next project.</div>`:''}
+      </div>
+    </div>
+    <div>${stepsHtml}</div>
+  </div>`;
+}
+
+function toggleStep(key) {
+  const body = document.getElementById('body-' + key);
+  const chev = document.getElementById('chev-' + key);
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    chev.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    chev.classList.add('open');
+  }
+}
+
+function markStep(key, projectId) {
+  if (completedSteps.has(key)) completedSteps.delete(key);
+  else completedSteps.add(key);
+  updateProgress();
+  renderAllSidebars();
+
+  // Update step UI
+  const project = PROJECTS.find(p => p.id === projectId);
+  if (!project) return;
+  const done = completedSteps.has(key);
+  const wrap = document.getElementById('step-wrap-' + key);
+  if (wrap) {
+    if (done) { wrap.classList.add('border-green-500/40','bg-green-900/10'); wrap.classList.remove('border-slate-700/50','bg-slate-800/40'); }
+    else { wrap.classList.remove('border-green-500/40','bg-green-900/10'); wrap.classList.add('border-slate-700/50','bg-slate-800/40'); }
+  }
+
+  // Update project progress bar
+  const doneCount = project.steps.filter(s => completedSteps.has(`${project.id}-${s.id}`)).length;
+  const prog = Math.round((doneCount / project.steps.length) * 100);
+  const bar = document.getElementById(`proj-progress-bar-${projectId}`);
+  const txt = document.getElementById(`proj-progress-text-${projectId}`);
+  if (bar) bar.style.width = prog + '%';
+  if (txt) txt.textContent = `${doneCount}/${project.steps.length} steps • ${prog}%`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RUN GUIDE VIEW
+// ═══════════════════════════════════════════════════════════════
+function renderRunStepCard(step, color, bgColor) {
+  let body = `<p class="text-slate-300 leading-relaxed mb-4">${escapeHtml(step.description)}</p>`;
+  if (step.commands?.length) body += `<div class="mb-4"><div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Terminal Commands</div>${codeBlock(step.commands.join('\n'),'bash')}</div>`;
+  if (step.code?.length) body += step.code.map(f=>codeBlock(f.content,f.filename,'code')).join('');
+  if (step.checks?.length) body += tipsBlock(step.checks,'check');
+  if (step.tips?.length) body += tipsBlock(step.tips,'tip');
+  if (step.warnings?.length) body += tipsBlock(step.warnings,'warn');
+
+  const id = 'rgs-' + step.id + Math.random().toString(36).substr(2,5);
+  return `<div class="rounded-2xl border border-slate-700/50 bg-slate-800/40 overflow-hidden mb-3">
+    <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.chevron').classList.toggle('open')">
+      <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm ${bgColor} ${color}">${step.id}</div>
+      <div class="flex-1"><span class="font-semibold text-white">${escapeHtml(step.title)}</span></div>
+      <span class="text-slate-500 chevron ${step.id===1?'open':''}">▼</span>
+    </div>
+    <div class="step-body ${step.id===1?'open':''} px-5 pb-6 border-t border-slate-700/40 pt-5">${body}</div>
+  </div>`;
+}
+
+function renderRunGuide() {
+  return `<div class="space-y-6">
+    <div class="rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6">
+      <div class="flex items-start gap-4">
+        <span class="text-5xl">🖥️</span>
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-white mb-1">How to Run the Project</h2>
+          <p class="text-slate-400 text-sm leading-relaxed">Complete setup instructions for running your DevOps project locally on your machine, and deploying it live on AWS EC2. Every command is copy-paste ready.</p>
+          <div class="flex flex-wrap gap-3 mt-4">
+            ${[{icon:'💻',label:'Local Dev',desc:'Node.js + Docker + Compose'},{icon:'☁️',label:'AWS EC2',desc:'t2.micro + Nginx + CI/CD'},{icon:'🔒',label:'Secured',desc:'Security best practices'},{icon:'📋',label:'Copy-ready',desc:'All commands included'}].map(b=>`<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-700/50 border border-slate-600/50"><span>${b.icon}</span><span class="text-xs font-semibold text-white">${b.label}</span><span class="text-xs text-slate-400">${b.desc}</span></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="rounded-xl border border-violet-500/20 bg-violet-500/5 p-4">
+        <div class="flex items-center gap-2 mb-3"><span class="text-xl">💻</span><span class="font-semibold text-violet-400">Run Locally</span></div>
+        <ul class="space-y-1.5 text-sm text-slate-300">
+          ${['Fast iteration','No cloud costs','Full debugging tools','Docker Compose stack'].map(i=>`<li class="flex items-center gap-2">✓ ${i}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="rounded-xl border border-orange-500/20 bg-orange-500/5 p-4">
+        <div class="flex items-center gap-2 mb-3"><span class="text-xl">☁️</span><span class="font-semibold text-orange-400">Run on AWS EC2</span></div>
+        <ul class="space-y-1.5 text-sm text-slate-300">
+          ${['Public URL accessible globally','Free tier (t2.micro)','Real production environment','CI/CD auto-deploys on push'].map(i=>`<li class="flex items-center gap-2">✓ ${i}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex rounded-xl bg-slate-800/60 border border-slate-700/50 p-1 gap-1" id="run-tabs">
+      <button onclick="switchRunTab('local')" id="run-tab-local" class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 bg-violet-500 text-white shadow-lg">
+        💻 Local Setup <span class="text-xs px-1.5 py-0.5 rounded-full bg-white/20">${LOCAL_STEPS.length} steps</span>
+      </button>
+      <button onclick="switchRunTab('aws')" id="run-tab-aws" class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white">
+        ☁️ AWS EC2 <span class="text-xs px-1.5 py-0.5 rounded-full bg-slate-700">${AWS_STEPS.length} steps</span>
+      </button>
+    </div>
+
+    <div id="run-arch-local" class="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
+      <div class="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-4">📐 Local Architecture Flow</div>
+      <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
+        ${[{l:'Browser',s:'localhost:80',c:'bg-slate-700 text-slate-200'},{l:'→',s:null,c:''},{l:'Nginx',s:'port 80',c:'bg-blue-500/20 text-blue-300 border border-blue-500/30'},{l:'→',s:null,c:''},{l:'Node.js App',s:'port 3000',c:'bg-violet-500/20 text-violet-300 border border-violet-500/30'},{l:'→',s:null,c:''},{l:'Docker',s:'container',c:'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'}].map(item=>item.s===null?`<span class="text-slate-400 font-bold">→</span>`:`<div class="px-3 py-2 rounded-xl text-center ${item.c}"><div class="font-semibold">${item.l}</div><div class="text-xs opacity-70">${item.s}</div></div>`).join('')}
+      </div>
+    </div>
+    <div id="run-arch-aws" class="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 hidden">
+      <div class="text-xs font-semibold text-orange-400 uppercase tracking-wider mb-4">☁️ AWS EC2 Architecture Flow</div>
+      <div class="flex flex-wrap items-center justify-center gap-3 text-sm">
+        ${[{l:'Internet',s:'Users',c:'bg-slate-700 text-slate-200'},{l:'→',s:null},{l:'AWS EC2',s:'Public IP',c:'bg-orange-500/20 text-orange-300 border border-orange-500/30'},{l:'→',s:null},{l:'Nginx',s:'port 80',c:'bg-blue-500/20 text-blue-300 border border-blue-500/30'},{l:'→',s:null},{l:'Docker',s:'port 3000',c:'bg-violet-500/20 text-violet-300 border border-violet-500/30'}].map(item=>item.s===null?`<span class="text-slate-400 font-bold">→</span>`:`<div class="px-3 py-2 rounded-xl text-center ${item.c}"><div class="font-semibold">${item.l}</div><div class="text-xs opacity-70">${item.s}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div id="run-steps-local">${LOCAL_STEPS.map(s=>renderRunStepCard(s,'text-violet-400','bg-violet-500/20')).join('')}</div>
+    <div id="run-steps-aws" class="hidden">${AWS_STEPS.map(s=>renderRunStepCard(s,'text-orange-400','bg-orange-500/20')).join('')}</div>
+
+    <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
+      <div class="text-sm font-bold text-red-400 mb-4">🆘 Quick Troubleshooting Reference</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        ${[
+          {problem:"Can't SSH into EC2",fix:"Check .pem permissions: chmod 400 devops-key.pem. Verify Security Group allows port 22."},
+          {problem:"App not accessible on port 80",fix:"Check Nginx: sudo nginx -t && sudo systemctl status nginx. Verify Security Group opens port 80."},
+          {problem:"Docker container keeps crashing",fix:"Run: docker logs myapp to see errors. Check port conflicts: lsof -i :3000"},
+          {problem:"GitHub Actions pipeline fails",fix:"Check Actions tab for error details. Verify all GitHub Secrets are set correctly."},
+          {problem:"EC2 IP changed after reboot",fix:"Use an Elastic IP to keep a fixed IP. Update EC2_HOST GitHub Secret with new IP."},
+          {problem:"Docker Hub push fails in CI",fix:"Regenerate Docker Hub Access Token. Re-add DOCKERHUB_TOKEN to GitHub Secrets."}
+        ].map(item=>`<div class="rounded-xl bg-slate-800/60 border border-slate-700/40 p-3">
+          <div class="text-xs font-semibold text-red-300 mb-1">❌ ${escapeHtml(item.problem)}</div>
+          <div class="text-xs text-slate-400">→ ${escapeHtml(item.fix)}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function switchRunTab(tab) {
+  const localBtn = document.getElementById('run-tab-local');
+  const awsBtn = document.getElementById('run-tab-aws');
+  const stepsLocal = document.getElementById('run-steps-local');
+  const stepsAws = document.getElementById('run-steps-aws');
+  const archLocal = document.getElementById('run-arch-local');
+  const archAws = document.getElementById('run-arch-aws');
+
+  if (tab === 'local') {
+    localBtn.className = 'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 bg-violet-500 text-white shadow-lg';
+    awsBtn.className = 'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white';
+    stepsLocal.classList.remove('hidden');
+    stepsAws.classList.add('hidden');
+    archLocal.classList.remove('hidden');
+    archAws.classList.add('hidden');
+  } else {
+    awsBtn.className = 'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 bg-orange-500 text-white shadow-lg';
+    localBtn.className = 'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white';
+    stepsAws.classList.remove('hidden');
+    stepsLocal.classList.add('hidden');
+    archAws.classList.remove('hidden');
+    archLocal.classList.add('hidden');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DEBUG TOOLKIT VIEW
+// ═══════════════════════════════════════════════════════════════
+function renderDebugToolkit() {
+  return `<div class="space-y-6">
+    <!-- Header -->
+    <div class="rounded-2xl border border-red-500/20 bg-gradient-to-br from-red-900/10 to-slate-900/60 p-6">
+      <div class="flex items-start gap-4">
+        <span class="text-5xl">🛠️</span>
+        <div class="flex-1">
+          <div class="flex flex-wrap gap-2 mb-2">
+            ${['Survival Skills','Real-World','Copy-Paste Ready','Production Tested'].map(t=>`<span class="text-xs px-2.5 py-1 rounded-full font-medium bg-red-500/20 text-red-300">${t}</span>`).join('')}
+          </div>
+          <h2 class="text-2xl font-bold text-white mb-1">Debugging Toolkit</h2>
+          <p class="text-slate-400 text-sm leading-relaxed">Real-world survival skills for diagnosing servers, containers, pipelines, and cloud infrastructure. Every command DevOps engineers actually use when things break in production.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 60-second script -->
+    <div class="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
+      <div class="font-bold text-amber-400 mb-3">⚡ 60-Second Sick Server Script — Run This First</div>
+      ${codeBlock(`#!/bin/bash
+echo "=== SYSTEM ===" && uptime && free -h && df -h
+echo "=== DOCKER ===" && docker ps -a --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'
+echo "=== PORTS ===" && ss -tulpn | grep -E ':80|:443|:3000|:9090'
+echo "=== NGINX ===" && systemctl is-active nginx && journalctl -u nginx -n 5 --no-pager
+echo "=== SERVICES ===" && systemctl --failed
+echo "=== CONNECTIVITY ===" && curl -s -o /dev/null -w "App: %{http_code}" http://localhost:3000/health
+`,'first-response.sh','bash')}
+    </div>
+
+    <!-- Main Tabs -->
+    <div class="flex flex-wrap rounded-xl bg-slate-800/60 border border-slate-700/50 p-1 gap-1" id="debug-main-tabs">
+      ${[
+        {id:'by-project',label:'📁 By Project'},
+        {id:'by-platform',label:'🔧 By Platform'},
+        {id:'scenarios',label:'🔥 Scenarios'},
+        {id:'cheatsheet',label:'📋 Cheatsheet'}
+      ].map((t,i)=>`<button onclick="switchDebugTab('${t.id}')" id="dbgtab-${t.id}" class="debug-main-tab flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-semibold transition-all ${i===0?'bg-red-500 text-white':'text-slate-400 hover:text-white'}">${t.label}</button>`).join('')}
+    </div>
+
+    <!-- By Project Tab -->
+    <div id="debug-panel-by-project" class="debug-panel">
+      <div class="flex flex-wrap gap-2 mb-4" id="proj-debug-tabs">
+        ${PROJECT_DEBUG.map((p,i)=>`<button onclick="switchProjDebugTab('${p.id}')" id="pdtab-${p.id}" class="proj-debug-tab text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${i===0?p.badgeColor+' '+p.borderColor:' border-slate-700 text-slate-400 hover:text-white'}">${p.icon} P${p.projectNum}: ${p.projectTitle}</button>`).join('')}
+      </div>
+      <div id="proj-debug-content">${renderProjDebugSection(PROJECT_DEBUG[0])}</div>
+    </div>
+
+    <!-- By Platform Tab -->
+    <div id="debug-panel-by-platform" class="debug-panel hidden">
+      <div class="flex flex-wrap gap-2 mb-4" id="platform-tabs">
+        ${PLATFORM_DEBUG.map((p,i)=>`<button onclick="switchPlatformTab('${p.id}')" id="pltab-${p.id}" class="platform-tab text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${i===0?p.badgeColor+' '+p.borderColor:'border-slate-700 text-slate-400 hover:text-white'}">${p.icon} ${p.title}</button>`).join('')}
+      </div>
+      <div id="platform-content">${renderPlatformSection(PLATFORM_DEBUG[0])}</div>
+    </div>
+
+    <!-- Scenarios Tab -->
+    <div id="debug-panel-scenarios" class="debug-panel hidden">
+      <div class="space-y-4">
+        ${SURVIVAL_SCENARIOS.map(s=>`<div class="rounded-2xl border ${s.severity==='critical'?'border-red-500/30 bg-red-900/5':'border-amber-500/30 bg-amber-900/5'} overflow-hidden">
+          <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.chevron').classList.toggle('open')">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-1">
+                <span class="text-lg font-bold text-white">${escapeHtml(s.title)}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full font-bold ${s.severity==='critical'?'bg-red-500/20 text-red-400':'bg-amber-500/20 text-amber-400'}">${s.severity.toUpperCase()}</span>
+              </div>
+              <p class="text-slate-400 text-sm">${escapeHtml(s.symptom)}</p>
+            </div>
+            <span class="text-slate-500 chevron">▼</span>
+          </div>
+          <div class="step-body px-5 pb-6 border-t border-slate-700/40 pt-5">
+            <div class="mb-4">${codeBlock(s.diagnosis.join('\n'),'Diagnosis Steps','bash')}</div>
+            <div class="rounded-xl bg-green-500/5 border border-green-500/20 p-4 mb-3">
+              <div class="text-xs font-semibold text-green-400 uppercase tracking-wider mb-1">✅ Fix</div>
+              <p class="text-sm text-slate-300">${escapeHtml(s.fix)}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              ${s.tools.map(t=>`<span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">${t}</span>`).join('')}
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Cheatsheet Tab -->
+    <div id="debug-panel-cheatsheet" class="debug-panel hidden">
+      <div class="mb-4">
+        <input type="text" id="cheat-search" placeholder="🔍 Search commands..." oninput="filterCheatsheet(this.value)" class="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-slate-700/60 text-white placeholder-slate-500 focus:outline-none focus:border-slate-500 text-sm">
+      </div>
+      <div id="cheatsheet-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${CHEATSHEET.map(cat=>`<div class="cheat-category rounded-2xl border border-slate-700/50 bg-slate-800/40 overflow-hidden">
+          <div class="px-4 py-3 bg-slate-800/60 border-b border-slate-700/40 flex items-center gap-2">
+            <span>${cat.icon}</span>
+            <span class="font-semibold ${cat.color} text-sm">${cat.category}</span>
+          </div>
+          <div class="p-3 space-y-1">
+            ${cat.items.map(item=>`<div class="cheat-item flex gap-3 p-2 rounded-lg hover:bg-slate-700/30 transition-colors cursor-pointer group" onclick="copyToClipboard('${item.cmd.replace(/'/g,"\\'")}', this.querySelector('.copy-hint'))">
+              <code class="text-xs text-cyan-300 font-mono flex-1 leading-relaxed cheat-cmd">${escapeHtml(item.cmd)}</code>
+              <div class="flex-shrink-0 text-right">
+                <div class="text-xs text-slate-500 cheat-desc">${escapeHtml(item.desc)}</div>
+                <div class="copy-hint text-xs text-slate-600 group-hover:text-slate-400 transition-colors">click to copy</div>
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderProjDebugSection(section) {
+  return `<div class="space-y-4">
+    <div class="rounded-xl border ${section.borderColor} ${section.bgColor} p-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">${section.icon}</span>
+        <div>
+          <div class="font-bold text-white">Project ${section.projectNum}: ${section.projectTitle}</div>
+          <div class="text-sm ${section.color}">Focus: ${section.focus}</div>
+        </div>
+      </div>
+    </div>
+    ${section.commands.map(cmd=>`<div class="rounded-2xl border border-slate-700/50 bg-slate-800/40 overflow-hidden">
+      <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.chevron').classList.toggle('open')">
+        <div class="flex-shrink-0">
+          <code class="text-sm font-mono font-bold ${section.color} bg-slate-900/50 px-3 py-1.5 rounded-lg">${escapeHtml(cmd.cmd)}</code>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-white text-sm font-medium">${escapeHtml(cmd.what)}</div>
+        </div>
+        <span class="text-slate-500 chevron">▼</span>
+      </div>
+      <div class="step-body px-5 pb-5 border-t border-slate-700/40 pt-4 space-y-4">
+        <div class="rounded-xl bg-slate-900/50 border border-slate-700/40 p-4">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Why you'd use this</div>
+          <p class="text-sm text-slate-300">${escapeHtml(cmd.why)}</p>
+        </div>
+        ${codeBlock(cmd.cmd, 'Command', 'bash')}
+        ${cmd.flags?.length?`<div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Key Flags</div>
+          <div class="space-y-2">
+            ${cmd.flags.map(f=>`<div class="flex gap-3 items-start">
+              <code class="text-xs font-mono text-cyan-400 bg-slate-900/50 px-2 py-0.5 rounded flex-shrink-0">${escapeHtml(f.flag)}</code>
+              <span class="text-xs text-slate-400">${escapeHtml(f.meaning)}</span>
+            </div>`).join('')}
+          </div>
+        </div>`:''}
+        ${cmd.tips?.length?tipsBlock(cmd.tips,'tip'):''}
+        ${cmd.danger?`<div class="rounded-xl bg-red-500/5 border border-red-500/20 p-4">
+          <div class="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">🚨 Danger</div>
+          <p class="text-sm text-slate-300">${escapeHtml(cmd.danger)}</p>
+        </div>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderPlatformSection(section) {
+  return `<div class="space-y-4">
+    <div class="rounded-xl border ${section.borderColor} ${section.bgColor} p-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">${section.icon}</span>
+        <div>
+          <div class="font-bold text-white">${section.title}</div>
+          <div class="text-sm ${section.color}">${section.subtitle}</div>
+        </div>
+      </div>
+    </div>
+    ${section.commands.map(cmd=>`<div class="rounded-2xl border border-slate-700/50 bg-slate-800/40 overflow-hidden">
+      <div class="flex items-center gap-4 p-5 cursor-pointer hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.chevron').classList.toggle('open')">
+        <div class="flex-shrink-0">
+          <code class="text-sm font-mono font-bold ${section.color} bg-slate-900/50 px-3 py-1.5 rounded-lg">${escapeHtml(cmd.cmd)}</code>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-white text-sm font-medium">${escapeHtml(cmd.what)}</div>
+        </div>
+        <span class="text-slate-500 chevron">▼</span>
+      </div>
+      <div class="step-body px-5 pb-5 border-t border-slate-700/40 pt-4 space-y-4">
+        <div class="rounded-xl bg-slate-900/50 border border-slate-700/40 p-4">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Why you'd use this</div>
+          <p class="text-sm text-slate-300">${escapeHtml(cmd.why)}</p>
+        </div>
+        ${codeBlock(cmd.cmd, 'Command', 'bash')}
+        ${cmd.flags?.length?`<div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Key Flags</div>
+          <div class="space-y-2">
+            ${cmd.flags.map(f=>`<div class="flex gap-3 items-start">
+              <code class="text-xs font-mono text-cyan-400 bg-slate-900/50 px-2 py-0.5 rounded flex-shrink-0">${escapeHtml(f.flag)}</code>
+              <span class="text-xs text-slate-400">${escapeHtml(f.meaning)}</span>
+            </div>`).join('')}
+          </div>
+        </div>`:''}
+        ${cmd.tips?.length?tipsBlock(cmd.tips,'tip'):''}
+        ${cmd.danger?`<div class="rounded-xl bg-red-500/5 border border-red-500/20 p-4">
+          <div class="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">🚨 Danger</div>
+          <p class="text-sm text-slate-300">${escapeHtml(cmd.danger)}</p>
+        </div>`:''}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function initDebugToolkit() {
+  // No extra init needed
+}
+
+function switchDebugTab(tabId) {
+  document.querySelectorAll('.debug-main-tab').forEach(btn => {
+    btn.className = 'debug-main-tab flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-semibold transition-all text-slate-400 hover:text-white';
+  });
+  document.getElementById('dbgtab-' + tabId).className = 'debug-main-tab flex-1 min-w-[120px] py-2 px-3 rounded-lg text-xs font-semibold transition-all bg-red-500 text-white';
+  document.querySelectorAll('.debug-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('debug-panel-' + tabId).classList.remove('hidden');
+}
+
+function switchProjDebugTab(id) {
+  const section = PROJECT_DEBUG.find(p => p.id === id);
+  if (!section) return;
+  document.querySelectorAll('.proj-debug-tab').forEach(btn => {
+    btn.className = 'proj-debug-tab text-xs px-3 py-1.5 rounded-full border font-semibold transition-all border-slate-700 text-slate-400 hover:text-white';
+  });
+  const btn = document.getElementById('pdtab-' + id);
+  btn.className = `proj-debug-tab text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${section.badgeColor} ${section.borderColor}`;
+  document.getElementById('proj-debug-content').innerHTML = renderProjDebugSection(section);
+}
+
+function switchPlatformTab(id) {
+  const section = PLATFORM_DEBUG.find(p => p.id === id);
+  if (!section) return;
+  document.querySelectorAll('.platform-tab').forEach(btn => {
+    btn.className = 'platform-tab text-xs px-3 py-1.5 rounded-full border font-semibold transition-all border-slate-700 text-slate-400 hover:text-white';
+  });
+  const btn = document.getElementById('pltab-' + id);
+  btn.className = `platform-tab text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${section.badgeColor} ${section.borderColor}`;
+  document.getElementById('platform-content').innerHTML = renderPlatformSection(section);
+}
+
+function filterCheatsheet(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.cheat-category').forEach(cat => {
+    let catVisible = false;
+    cat.querySelectorAll('.cheat-item').forEach(item => {
+      const cmd = item.querySelector('.cheat-cmd')?.textContent?.toLowerCase() || '';
+      const desc = item.querySelector('.cheat-desc')?.textContent?.toLowerCase() || '';
+      const match = !q || cmd.includes(q) || desc.includes(q);
+      item.style.display = match ? '' : 'none';
+      if (match) catVisible = true;
+    });
+    cat.style.display = catVisible ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE SIDEBAR
+// ═══════════════════════════════════════════════════════════════
+function openMobileSidebar() {
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.getElementById('mobile-sidebar').classList.add('open');
+}
+function closeMobileSidebar() {
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.getElementById('mobile-sidebar').classList.remove('open');
+}
+document.getElementById('hamburger').addEventListener('click', openMobileSidebar);
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+updateProgress();
+renderAllSidebars();
+setView('run');
+</script>
+</body>
+</html>
